@@ -1,0 +1,51 @@
+# Archivos generados por el compilador y el IDE
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.ilk
+*.nupkg
+
+# Configuraciones de usuario
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# Dependencias NuGet
+packages/
+*.nupkg
+
+# Avalonia específico
+avalonia-resources/
+avalonia/
+
+# Resultados de pruebas
+TestResults/
+*.trx
+
+# Archivos de logs
+*.log
+*.log*
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Archivos de IDE alternativos
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sln.iml
+
+# Específicos de macOS/Linux
+.DS_Store
+*.swp
+
+# Archivos de publicación
+publish/
