@@ -1,4 +1,5 @@
 # Archivos generados por el compilador y el IDE
+.vscode/
 bin/
 obj/
 *.exe
@@ -7,6 +8,7 @@ obj/
 *.cache
 *.ilk
 *.nupkg
+Wall-E Pixel.sln
 
 # Configuraciones de usuario
 .vs/
