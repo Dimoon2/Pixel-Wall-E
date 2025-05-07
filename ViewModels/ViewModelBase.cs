@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Wall_E_Pixel.ViewModels;
+namespace PixelWallEApp.ViewModels;
 
 public class ViewModelBase : ObservableObject
 {

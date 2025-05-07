@@ -1,47 +1,37 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
-using System.Linq;
 using Avalonia.Markup.Xaml;
-using Wall_E_Pixel.ViewModels;
-using Wall_E_Pixel.Views;
+using PixelWallEApp.ViewModels;
+using PixelWallEApp.Views;
 
-namespace Wall_E_Pixel;
-
-public partial class App : Application
+namespace PixelWallEApp
 {
-    public override void Initialize()
+    public partial class App : Application
     {
-        AvaloniaXamlLoader.Load(this);
-    }
+        // Static reference to the ViewModel for easy access (e.g., from Canvas)
+        // Consider dependency injection for larger apps.
+        public static MainWindowViewModel? MainWindowViewModel { get; set; }
 
-    public override void OnFrameworkInitializationCompleted()
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        public override void Initialize()
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
-            DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainWindowViewModel(),
-            };
+            AvaloniaXamlLoader.Load(this);
         }
 
-        base.OnFrameworkInitializationCompleted();
-    }
-
-    private void DisableAvaloniaDataAnnotationValidation()
-    {
-        // Get an array of plugins to remove
-        var dataValidationPluginsToRemove =
-            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
-
-        // remove each entry found
-        foreach (var plugin in dataValidationPluginsToRemove)
+        // En App.axaml.cs
+        public override void OnFrameworkInitializationCompleted()
         {
-            BindingPlugins.DataValidators.Remove(plugin);
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                // Asegúrate que creas el ViewModel ANTES de la ventana
+                MainWindowViewModel = new MainWindowViewModel();
+
+                // Asegúrate que asignas el ViewModel al DataContext
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = MainWindowViewModel, // Esta línea es crucial
+                };
+            }
+            base.OnFrameworkInitializationCompleted();
         }
     }
 }

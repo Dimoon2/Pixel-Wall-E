@@ -1,20 +1,62 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Wall_E_Pixel.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Wall_E_Pixel.Views.MainWindow"
+        xmlns:vm="using:PixelWallEApp.ViewModels" 
+        xmlns:local="using:PixelWallEApp.Views"
+        xmlns:controls="using:PixelWallEApp.Views.Controls"
+        x:Class="PixelWallEApp.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Wall_E_Pixel">
+        Title="Pixel Wall-E"
+        Width="1000" Height="700">
 
+    <!-- Design.DataContext is ONLY for the previewer, x:DataType is for compilation -->
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid ColumnDefinitions="*, 2*" RowDefinitions="Auto, *, Auto">
 
+        <!-- Top Controls -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10" Margin="10">
+            <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
+            <!-- Binding with x:DataType -->
+            <TextBox Text="{Binding CanvasSizeInput}" Width="50" VerticalAlignment="Center"/>
+            <!-- Binding with x:DataType -->
+            <Button Content="Resize Y Clear Canvas" Command="{Binding ResizeCanvasCommand}"/>
+            <!-- Binding with x:DataType -->
+            <Button Content="Run Code" Command="{Binding ExecuteCodeCommand}" FontWeight="Bold"/>
+            <!-- Add Load/Save buttons later -->
+        </StackPanel>
+
+        <!-- Code Editor -->
+        <TextBox Grid.Row="1" Grid.Column="0"
+                 Margin="10"
+                 FontFamily="Consolas, Menlo, monospace"
+                 AcceptsReturn="True"
+                 AcceptsTab="True"
+                 Text="{Binding CodeText, Mode=TwoWay}" 
+                 Watermark="Enter Wall-E code here..."
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"   
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto"/> <!-- FIX: Use ScrollViewer. attached property -->
+
+        <!-- Canvas Area -->
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10">
+             <!-- Binding with x:DataType -->
+             <controls:PixelCanvas x:Name="PixelCanvasDisplay"
+                                   CanvasState="{Binding CanvasState}" />
+                                   
+        </Border>
+
+        <!-- Output Log -->
+        <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                 Margin="10" Height="100"
+                 IsReadOnly="True"
+                 FontFamily="Consolas, Menlo, monospace"
+                 FontSize="10"
+                 Text="{Binding OutputLog}" 
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                 TextWrapping="NoWrap"/> <!-- Horizontal scrollbar not usually needed if TextWrapping="NoWrap" -->
+                 <!-- Removed ScrollViewer.HorizontalScrollBarVisibility="Auto" as it's less common with NoWrap -->
+
+    </Grid>
 </Window>

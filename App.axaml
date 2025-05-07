@@ -1,15 +1,41 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Wall_E_Pixel.App"
-             xmlns:local="using:Wall_E_Pixel"
+             xmlns:local="using:PixelWallEApp" 
+             x:Class="PixelWallEApp.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other options. -->
 
     <Application.DataTemplates>
+        <!--
+        Define DataTemplates aquí si necesitas asociar automáticamente ViewModels con Views
+        para la navegación o contenido dinámico. Para este proyecto inicial, probablemente no sea necesario.
         <local:ViewLocator/>
+        -->
     </Application.DataTemplates>
-  
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <!--
+            Define aquí recursos globales como colores, brochas (Brushes), conversores (Converters), etc.
+            que quieras usar en múltiples lugares de tu aplicación.
+            Ejemplo:
+            <SolidColorBrush x:Key="MiColorPrincipal" Color="CornflowerBlue"/>
+            -->
+        </ResourceDictionary>
+    </Application.Resources>
+
+
     <Application.Styles>
+        <!-- Incluye el tema Fluent de Avalonia. Esto proporciona la apariencia moderna (estilo Windows 11) -->
         <FluentTheme />
+
+        <!-- Opcionalmente, si prefieres un tema más básico, podrías usar SimpleTheme en su lugar: -->
+        <!-- <SimpleTheme /> -->
+
+        <!-- Puedes añadir aquí estilos adicionales específicos para tu aplicación -->
+        <!--
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        Si usas controles como DataGrid, necesitas incluir sus estilos específicos del tema.
+        -->
     </Application.Styles>
 </Application>

@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using Wall_E_Pixel.ViewModels;
+using PixelWallEApp.ViewModels;
 
-namespace Wall_E_Pixel;
+namespace PixelWallEApp;
 
 public class ViewLocator : IDataTemplate
 {
