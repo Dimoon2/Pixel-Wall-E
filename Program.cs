@@ -18,4 +18,5 @@ namespace PixelWallEApp
                 .UsePlatformDetect()
                 .LogToTrace();
     }
+    
 }
