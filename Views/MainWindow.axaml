@@ -11,14 +11,14 @@
     x:DataType="vm:MainWindowViewModel"
     Icon="/Assets/avalonia-logo.ico">
 
-    <!--  Design.DataContext is ONLY for the previewer, x:DataType is for compilation  -->
+     <!-- Design.DataContext is ONLY for the previewer, x:DataType is for compilation  -->
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <!--  Ventana  -->
+     <!-- Ventana  -->
     <Grid Background="White" RowDefinitions="Auto,*, Auto">
-        <!--  fila 0  -->
+         <!-- fila 0  -->
         <Grid Grid.Row="0" Background="#F190EC">
             <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                 <Grid Width="300" ColumnDefinitions="Auto, 905">
@@ -36,12 +36,20 @@
                 </Grid>
 
             </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="10">
+               <TextBlock Text="Canvas Size:" Foreground="Black" VerticalAlignment="Center"/>
+               <!-- Binding with x:DataType -->
+               <TextBox Text="{Binding CanvasSizeInput}" Width="50" VerticalAlignment="Center"/>
+               <!-- Binding with x:DataType -->
+               <Button Content="Resize" Background="BlueViolet" Command="{Binding ResizeCanvasCommand}"/>
+               <!-- Binding with x:DataType -->
+            </StackPanel>
         </Grid>
         
-        <!--  fila 1  -->
+         <!-- fila 1  -->
         <Grid Grid.Row="1" Background="#A94CA4" ColumnDefinitions="Auto,*">
-            <!-- Columna 0 -->
-             <!-- Codigo  -->
+            <!-- Columna 0
+             Codigo  -->
             <Grid  Grid.Column="0" Width="700" Background="Black" RowDefinitions="450, 300">  
                 <!-- Errores     -->
                 <Grid Grid.Row="1" Background="#80547E">
@@ -49,13 +57,13 @@
                  </Grid>
 
                  <!-- Columna 1 -->
-                <Grid Grid.Column="1" Background="#F190EC" >
-                     <Canvas Background="#491546" Width="800" Height="740">
+                <Grid Grid.Column="1" Background="#491546" >
+                     <Canvas x:Name="MainCanvas" Background="White" Width="640" Height="640">
                      </Canvas>
                 </Grid>
             </Grid>
 
-        <!--  fila 2  -->
+         <!-- fila 2  -->
         <Grid
             Grid.Row="2"
             Background="#F190EC"
@@ -63,3 +71,4 @@
     </Grid>
 
 </Window>
+
