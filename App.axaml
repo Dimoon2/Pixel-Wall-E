@@ -28,7 +28,7 @@
     <Application.Styles>
         <!-- Incluye el tema Fluent de Avalonia. Esto proporciona la apariencia moderna (estilo Windows 11) -->
         <FluentTheme />
-
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
         <!-- Opcionalmente, si prefieres un tema más básico, podrías usar SimpleTheme en su lugar: -->
         <!-- <SimpleTheme /> -->
 

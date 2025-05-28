@@ -1,6 +1,7 @@
 <Window
     x:Class="PixelWallEApp.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
+    xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:PixelWallEApp.Views.Controls"
     xmlns:local="using:PixelWallEApp.Views"
@@ -26,7 +27,8 @@
                         Grid.Column="0"
                         BorderBrush="#463145"
                         Content="RUN" 
-                     Foreground="Black"/>
+                     Foreground="Black"
+                     Command="{Binding ExecuteCodeCommand}"/>
                     <Button
                         Grid.Column="1"
                         BorderBrush="#463145"
@@ -48,26 +50,33 @@
         
          <!-- fila 1  -->
         <Grid Grid.Row="1" Background="#A94CA4" ColumnDefinitions="Auto,*">
-            <!-- Columna 0
+            <!-- Columna 0 CONSOLEE
              Codigo  -->
-            <Grid  Grid.Column="0" Width="700" Background="Black" RowDefinitions="450, 300">  
+           <Grid  Grid.Column="0" Width="700" Background="Black" RowDefinitions="450, 300"> 
+                <AvaloniaEdit:TextEditor Grid.Row="0" Text="AAAA"
+                           ShowLineNumbers="True"
+                           FontFamily="Cascadia Code,Consolas,Menlo,Monospace"/> 
                 <!-- Errores     -->
-                <Grid Grid.Row="1" Background="#80547E">
-                 </Grid>
-                 </Grid>
-
-                 <!-- Columna 1 -->
-                <Grid Grid.Column="1" Background="#491546" >
-                     <Canvas x:Name="MainCanvas" Background="White" Width="640" Height="640">
-                     </Canvas>
-                </Grid>
+               <Grid Grid.Row="1" Background="#80547E">
+               </Grid>
+           </Grid>
+           <!-- Column 1  CANVASSSSSSS-->
+            <Grid Grid.Column="1" Background="#491546" >
+                 <!-- Canvas Area -->
+               <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10">
+               <!-- Binding with x:DataType -->
+                   <controls:PixelCanvas x:Name="PixelCanvasDisplay"
+                                   CanvasState="{Binding CanvasState}" />               
+               </Border>
             </Grid>
+        </Grid>
 
          <!-- fila 2  -->
         <Grid
             Grid.Row="2"
             Background="#F190EC"
-            RowDefinitions="30" />
+            RowDefinitions="30">
+        </Grid>
     </Grid>
 
 </Window>

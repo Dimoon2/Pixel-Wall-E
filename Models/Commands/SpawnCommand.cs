@@ -2,7 +2,8 @@ using System;
 
 namespace PixelWallEApp.Models.Commands
 {
-    public class SpawnCommand : ICommandDefinition
+    public class SpawnCommand : 
+    ICommandDefinition
     {
         public int X { get; }
         public int Y { get; }

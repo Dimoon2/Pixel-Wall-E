@@ -6,7 +6,10 @@ using PixelWallEApp.Models.Commands;
 using PixelWallEApp.Views.Controls; // For PixelCanvas reference (needed for redraw)
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Threading.Tasks; // For async relay command
+using Avalonia.Media; // For Color
+
 
 namespace PixelWallEApp.ViewModels
 {
@@ -46,7 +49,7 @@ DrawLine(1, 1, 5) // Draw diagonal down-right
             // Initialize CanvasState with the default input size
             _canvasState = new CanvasState(_canvasSizeInput);
             // Set the static reference in App for the canvas rendering
-             App.MainWindowViewModel = this; // Make VM accessible
+            App.MainWindowViewModel = this; // Make VM accessible
         }
 
         [RelayCommand]
@@ -62,62 +65,67 @@ DrawLine(1, 1, 5) // Draw diagonal down-right
         [RelayCommand]
         private async Task ExecuteCode() // Make async if parsing/execution could be long
         {
-            if (CanvasControl == null)
-            {
-                LogOutput("Error: Canvas control not available.");
-                return;
-            }
+            SpawnCommand Spawn = new SpawnCommand(0, 0);
+            Spawn.Execute(_wallEState, _canvasState);
+            _wallEState.BrushColor = Colors.Blue;
+            DrawLineCommand Draw = new DrawLineCommand(1, 0, 5);
 
-            LogOutput("Parsing code...");
-            List<ICommandDefinition>? commands = null;
-            try
-            {
-                commands = CommandParser.Parse(CodeText);
-                LogOutput($"Parsing successful. {commands.Count} command(s) found.");
-            }
-            catch (FormatException ex)
-            {
-                LogOutput($"Parsing Error: {ex.Message}");
-                return;
-            }
-            catch (Exception ex)
-            {
-                 LogOutput($"Unexpected Parsing Error: {ex.Message}");
-                 return;
-            }
+            //     if (CanvasControl == null)
+            //     {
+            //         LogOutput("Error: Canvas control not available.");
+            //         return;
+            //     }
 
-
-            LogOutput("Executing code...");
-            string? executionResult = null;
-            try
-            {
-                 // Run the interpreter - it modifies WallEState and CanvasState directly
-                executionResult = Interpreter.Run(commands, WallEState, CanvasState);
-            }
-            catch (Exception ex)
-            {
-                 LogOutput($"Unexpected Execution Error: {ex.Message}");
-                 // Optionally reset state or leave canvas partially drawn?
-                 // Let's leave it partially drawn for debugging.
-                 CanvasControl?.InvalidateVisual(); // Redraw partially modified state
-                 return;
-            }
+            //     LogOutput("Parsing code...");
+            //     List<ICommandDefinition>? commands = null;
+            //     try
+            //     {
+            //         commands = CommandParser.Parse(CodeText);
+            //         LogOutput($"Parsing successful. {commands.Count} command(s) found.");
+            //     }
+            //     catch (FormatException ex)
+            //     {
+            //         LogOutput($"Parsing Error: {ex.Message}");
+            //         return;
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //          LogOutput($"Unexpected Parsing Error: {ex.Message}");
+            //          return;
+            //     }
 
 
-            if (executionResult != null)
-            {
-                LogOutput($"Execution Failed: {executionResult}");
-                 // Redraw canvas to show state *before* the failed command (if needed, depends on Interpreter logic)
-                 // Currently, Interpreter stops, so the state is as it was *after* the last successful command.
-                 CanvasControl?.InvalidateVisual();
-            }
-            else
-            {
-                LogOutput("Execution completed successfully.");
-                // Trigger redraw on the UI thread after successful execution
-                 await Dispatcher.UIThread.InvokeAsync(() => CanvasControl?.InvalidateVisual());
+            //     LogOutput("Executing code...");
+            //     string? executionResult = null;
+            //     try
+            //     {
+            //          // Run the interpreter - it modifies WallEState and CanvasState directly
+            //         executionResult = Interpreter.Run(commands, WallEState, CanvasState);
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //          LogOutput($"Unexpected Execution Error: {ex.Message}");
+            //          // Optionally reset state or leave canvas partially drawn?
+            //          // Let's leave it partially drawn for debugging.
+            //          CanvasControl?.InvalidateVisual(); // Redraw partially modified state
+            //          return;
+            //     }
 
-            }
+
+            //     if (executionResult != null)
+            //     {
+            //         LogOutput($"Execution Failed: {executionResult}");
+            //          // Redraw canvas to show state *before* the failed command (if needed, depends on Interpreter logic)
+            //          // Currently, Interpreter stops, so the state is as it was *after* the last successful command.
+            //          CanvasControl?.InvalidateVisual();
+            //     }
+            //     else
+            //     {
+            //         LogOutput("Execution completed successfully.");
+            //         // Trigger redraw on the UI thread after successful execution
+            //          await Dispatcher.UIThread.InvokeAsync(() => CanvasControl?.InvalidateVisual());
+
+            //     }
         }
 
         private void LogOutput(string message)
@@ -128,7 +136,7 @@ DrawLine(1, 1, 5) // Draw diagonal down-right
             if (OutputLog.Length > 4000) OutputLog = OutputLog.Substring(0, 4000);
         }
 
-         // Expose WallEState for the canvas rendering (simple approach)
-         public WallEState? WallE => _wallEState;
+        // Expose WallEState for the canvas rendering (simple approach)
+        public WallEState? WallE => _wallEState;
     }
 }
