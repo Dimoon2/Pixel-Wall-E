@@ -1,142 +1,206 @@
-﻿using Avalonia.Threading; // For Dispatcher
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using PixelWallEApp.Models;
-using PixelWallEApp.Models.Commands;
-using PixelWallEApp.Views.Controls; // For PixelCanvas reference (needed for redraw)
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Threading.Tasks; // For async relay command
-using Avalonia.Media; // For Color
+﻿// ViewModels/MainWindowViewModel.cs
+using Avalonia;
+using Avalonia.Media;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using PixelWallEApp.Models; // Asegúrate que el namespace sea correcto
+using System.Linq;
+using System; // Para Math.Min y Convert.ToInt32 si es necesario
+using System.Diagnostics;
 
-
-namespace PixelWallEApp.ViewModels
+namespace PixelWallEApp.ViewModels // Asegúrate que el namespace sea correcto
 {
-    public partial class MainWindowViewModel : ObservableObject
+    public class MainWindowViewModel : ViewModelBase
     {
-        [ObservableProperty]
-        private string _codeText = @"// Enter Wall-E code here
-// Example:
-Spawn(0, 0)
-DrawLine(1, 1, 5) // Draw diagonal down-right
-// Color(Red) // Not implemented yet
-// Size(3) // Not implemented yet
-// DrawLine(1, 0, 10) // Draw right
-";
+           private readonly WallEStateModel _wallE;
+        public ObservableCollection<LineModel> Lines { get; }
 
-        [ObservableProperty]
-        private string _outputLog = "Output will appear here.";
+        private int _logicalCanvasSize = 50;
+        public int LogicalCanvasSize
+        {
+            get => _logicalCanvasSize;
+            set
+            {
+                if (SetField(ref _logicalCanvasSize, value > 0 ? value : 1)) // Mínimo 1
+                {
+                    ExecuteClearCanvas(null);
+                    StatusMessage = $"Canvas resized to {value}x{value}.";
+                }
+            }
+        }
 
-        [ObservableProperty]
-        private int _canvasSizeInput = 50; // Default size for input field
+        private string _newCanvasSizeInput = "50";
+        public string NewCanvasSizeInput
+        {
+            get => _newCanvasSizeInput;
+            set
+            {
+                if (SetField(ref _newCanvasSizeInput, value))
+                {
+                    (ResizeCanvasCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
+        }
 
-        [ObservableProperty]
-        private CanvasState _canvasState;
+        private string _statusMessage = "Ready.";
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set => SetField(ref _statusMessage, value);
+        }
 
-        [ObservableProperty]
-        private WallEState _wallEState;
-
-        // Reference to the actual canvas control to trigger redraws
-        // This breaks pure MVVM slightly but is pragmatic for custom drawing controls.
-        // An alternative is using messaging or events.
-        public PixelCanvas? CanvasControl { get; set; }
-
+        public ICommand RunTestDrawingCommand { get; }
+        public ICommand ClearCanvasCommand { get; }
+        public ICommand ResizeCanvasCommand { get; }
 
         public MainWindowViewModel()
         {
-            _wallEState = new WallEState();
-            // Initialize CanvasState with the default input size
-            _canvasState = new CanvasState(_canvasSizeInput);
-            // Set the static reference in App for the canvas rendering
-            App.MainWindowViewModel = this; // Make VM accessible
+            _wallE = new WallEStateModel();
+            Lines = new ObservableCollection<LineModel>();
+
+            RunTestDrawingCommand = new RelayCommand(ExecuteRunTestDrawing);
+            ClearCanvasCommand = new RelayCommand(ExecuteClearCanvas);
+            ResizeCanvasCommand = new RelayCommand(ExecuteResizeCanvas, CanExecuteResizeCanvas);
+
+            _wallE.CurrentPosition = new Point(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
+            _wallE.PenThickness = 1;
         }
 
-        [RelayCommand]
-        private void ResizeCanvas()
+        private void ExecuteRunTestDrawing(object? parameter)
         {
-            LogOutput($"Resizing canvas to {CanvasSizeInput}x{CanvasSizeInput}...");
-            CanvasState.Resize(CanvasSizeInput);
-            // Explicitly trigger redraw on the canvas control
-            CanvasControl?.InvalidateVisual();
-            LogOutput($"Canvas resized. Cleared to white.");
+            StatusMessage = "Running test drawing...";
+            Spawn(10, 10);
+            SetColor("Red");
+            SetSize(1);
+            DrawLine(1, 0, LogicalCanvasSize - 25); // Intentar dibujar hasta cerca del borde
+
+            SetColor("Blue");
+            SetSize(1);
+            Spawn(5, LogicalCanvasSize - 5); // Cerca del borde inferior izquierdo
+            DrawLine(1, 0, 10); // Esto podría salirse o no, dependiendo del tamaño
+
+            SetColor("Green");
+            Spawn(LogicalCanvasSize -5, LogicalCanvasSize -5);
+            DrawLine(1,0,10); // Este seguro intenta salirse
+
+            StatusMessage = "Test drawing finished. Check console for warnings.";
         }
 
-        [RelayCommand]
-        private async Task ExecuteCode() // Make async if parsing/execution could be long
+        private void ExecuteClearCanvas(object? parameter)
         {
-            SpawnCommand Spawn = new SpawnCommand(0, 0);
-            Spawn.Execute(_wallEState, _canvasState);
-            _wallEState.BrushColor = Colors.Blue;
-            DrawLineCommand Draw = new DrawLineCommand(1, 0, 5);
-
-            //     if (CanvasControl == null)
-            //     {
-            //         LogOutput("Error: Canvas control not available.");
-            //         return;
-            //     }
-
-            //     LogOutput("Parsing code...");
-            //     List<ICommandDefinition>? commands = null;
-            //     try
-            //     {
-            //         commands = CommandParser.Parse(CodeText);
-            //         LogOutput($"Parsing successful. {commands.Count} command(s) found.");
-            //     }
-            //     catch (FormatException ex)
-            //     {
-            //         LogOutput($"Parsing Error: {ex.Message}");
-            //         return;
-            //     }
-            //     catch (Exception ex)
-            //     {
-            //          LogOutput($"Unexpected Parsing Error: {ex.Message}");
-            //          return;
-            //     }
-
-
-            //     LogOutput("Executing code...");
-            //     string? executionResult = null;
-            //     try
-            //     {
-            //          // Run the interpreter - it modifies WallEState and CanvasState directly
-            //         executionResult = Interpreter.Run(commands, WallEState, CanvasState);
-            //     }
-            //     catch (Exception ex)
-            //     {
-            //          LogOutput($"Unexpected Execution Error: {ex.Message}");
-            //          // Optionally reset state or leave canvas partially drawn?
-            //          // Let's leave it partially drawn for debugging.
-            //          CanvasControl?.InvalidateVisual(); // Redraw partially modified state
-            //          return;
-            //     }
-
-
-            //     if (executionResult != null)
-            //     {
-            //         LogOutput($"Execution Failed: {executionResult}");
-            //          // Redraw canvas to show state *before* the failed command (if needed, depends on Interpreter logic)
-            //          // Currently, Interpreter stops, so the state is as it was *after* the last successful command.
-            //          CanvasControl?.InvalidateVisual();
-            //     }
-            //     else
-            //     {
-            //         LogOutput("Execution completed successfully.");
-            //         // Trigger redraw on the UI thread after successful execution
-            //          await Dispatcher.UIThread.InvokeAsync(() => CanvasControl?.InvalidateVisual());
-
-            //     }
+            Lines.Clear();
+            _wallE.CurrentPosition = new Point(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
+            _wallE.BrushColor = Brushes.Transparent;
+            _wallE.PenThickness = 1;
+            StatusMessage = "Canvas cleared.";
         }
 
-        private void LogOutput(string message)
+        private bool CanExecuteResizeCanvas(object? parameter)
         {
-            // Prepend new messages to the log
-            OutputLog = $"{DateTime.Now:HH:mm:ss}: {message}\n{OutputLog}";
-            // Optional: Limit log length
-            if (OutputLog.Length > 4000) OutputLog = OutputLog.Substring(0, 4000);
+            return int.TryParse(NewCanvasSizeInput, out int size) && size > 0;
         }
 
-        // Expose WallEState for the canvas rendering (simple approach)
-        public WallEState? WallE => _wallEState;
+        private void ExecuteResizeCanvas(object? parameter)
+        {
+            if (int.TryParse(NewCanvasSizeInput, out int size) && size > 0)
+            {
+                LogicalCanvasSize = size; // El setter ya se encarga de limpiar y notificar
+            }
+            else
+            {
+                StatusMessage = "Invalid size input.";
+            }
+        }
+
+        private void Spawn(int x, int y)
+        {
+            if (x >= 0 && x < LogicalCanvasSize && y >= 0 && y < LogicalCanvasSize)
+            {
+                _wallE.CurrentPosition = new Point(x, y);
+                StatusMessage = $"Wall-E spawned at ({x},{y}).";
+            }
+            else
+            {
+                StatusMessage = $"Spawn Error: Position ({x},{y}) is outside canvas (0-{LogicalCanvasSize-1}). Wall-E not moved.";
+                Debug.WriteLine(StatusMessage);
+            }
+        }
+
+        private void SetColor(string colorName)
+        {
+            _wallE.BrushColor = colorName.ToLower() switch
+            {
+                "red" => Brushes.Red, "blue" => Brushes.Blue, "green" => Brushes.Green,
+                "yellow" => Brushes.Yellow, "orange" => Brushes.Orange, "purple" => Brushes.Purple,
+                "black" => Brushes.Black, "white" => Brushes.White, "transparent" => Brushes.Transparent,
+                _ => Brushes.Black
+            };
+        }
+
+        private void SetSize(int k)
+        {
+            int newThickness = 1;
+            if (k > 0)
+            {
+                newThickness = (k % 2 == 0) ? k - 1 : k;
+                if (newThickness < 1) newThickness = 1;
+            }
+            _wallE.PenThickness = newThickness;
+        }
+
+        private void DrawLine(int dirX, int dirY, int distance)
+        {
+            if (!IsDirectionValid(dirX) || !IsDirectionValid(dirY) || distance <= 0)
+            {
+                StatusMessage = "DrawLine Error: Invalid direction or distance.";
+                Debug.WriteLine(StatusMessage);
+                return;
+            }
+
+            Point startPoint = _wallE.CurrentPosition;
+            Point tentativeEndPoint = new Point(
+                startPoint.X + (dirX * distance),
+                startPoint.Y + (dirY * distance)
+            );
+
+            // Validar el punto final.
+            // Si permitimos que la línea se dibuje parcialmente hasta el borde:
+            int finalX = (int)tentativeEndPoint.X;
+            int finalY = (int)tentativeEndPoint.Y;
+            bool outOfBounds = false;
+
+            if (finalX < 0 || finalX >= LogicalCanvasSize || finalY < 0 || finalY >= LogicalCanvasSize)
+            {
+                outOfBounds = true;
+                StatusMessage = $"DrawLine Warning: Path from ({startPoint.X},{startPoint.Y}) towards ({tentativeEndPoint.X},{tentativeEndPoint.Y}) goes out of bounds (0-{LogicalCanvasSize-1}). Line not drawn.";
+                Debug.WriteLine(StatusMessage);
+                // Opción 1: No dibujar la línea y no mover Wall-E
+                return;
+
+                // Opción 2: Truncar la línea al borde y mover Wall-E al borde (más complejo)
+                // Para esto, necesitarías recalcular la 'distance' o el 'finalX'/'finalY'
+                // de manera que se quede en el borde. Por ahora, implementaremos la Opción 1.
+            }
+            
+            // Si llegamos aquí, la línea está dentro de los límites
+            Point endPoint = tentativeEndPoint;
+
+            if (_wallE.BrushColor != Brushes.Transparent)
+            {
+                var lineToAdd = new LineModel(startPoint, endPoint, _wallE.BrushColor, _wallE.PenThickness);
+                Lines.Add(lineToAdd);
+                StatusMessage = $"Line drawn from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).";
+            }
+            else
+            {
+                 StatusMessage = $"Wall-E moved (transparently) from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).";
+            }
+            _wallE.CurrentPosition = endPoint; // Mover Wall-E al punto final (sea dibujado o no)
+        }
+
+        private bool IsDirectionValid(int dirValue)
+        {
+            return dirValue >= -1 && dirValue <= 1;
+        }
     }
 }
