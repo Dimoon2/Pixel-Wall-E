@@ -9,3 +9,9 @@ namespace PixelWallEApp.Models.Commands
         string CommandName { get; } // Para identificar el comando
     }
 }
+
+//  public interface ICommandDefinition
+//     {
+//         // Returns error message if execution fails, null otherwise
+//         string? Execute(WallEStateModel wallEState, Canvas canvasState);
+//     }

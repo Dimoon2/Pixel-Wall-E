@@ -35,10 +35,22 @@
                         Content="CLEAR"
                         Command="{Binding ClearCanvasCommand}"
                      Foreground="Black" />
+                     <!-- <Button
+                        Grid.Column="0"
+                        BorderBrush="#463145"
+                        Content="LOAD" 
+                     Foreground="Black"/>
+
+                    <Button
+                        Grid.Column="1"
+                        BorderBrush="#463145"
+                        Content="SAVE"
+                     Foreground="Black" /> -->
                        
                 </Grid>
 
             </StackPanel>
+            
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="10">
                <TextBlock Text="Canvas Size:" Foreground="Black" VerticalAlignment="Center"/>
                <!-- Binding with x:DataType -->

@@ -71,13 +71,6 @@ namespace PixelWallEApp.Commands
             
             // Actualizar la posición de Wall-E en el viewModel
             viewModel._wallE.CurrentPosition = endPoint;
-            // --- FIN DE LA LÓGICA COPIADA Y ADAPTADA ---
         }
-
-        // Método auxiliar (puede ser estático o parte de una clase de utilidad si se comparte)
-        // private bool IsDirectionValid(int dirValue)
-        // {
-        //     return dirValue >= -1 && dirValue <= 1;
-        // }
     }
 }

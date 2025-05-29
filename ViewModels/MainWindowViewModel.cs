@@ -124,7 +124,7 @@ namespace PixelWallEApp.ViewModels
         }
 
 
-        // Los métodos Spawn, SetColor, SetSize pueden permanecer aquí o también convertirse en comandos
+       // Los métodos Spawn, SetColor, SetSize pueden permanecer aquí o también convertirse en comandos
         public void Spawn(int x, int y)
         {
             if (x >= 0 && x < LogicalCanvasSize && y >= 0 && y < LogicalCanvasSize)
