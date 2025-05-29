@@ -1,99 +1,83 @@
-// using Avalonia.Media; // For Color
-// using System;
+// Commands/DrawLineCommand.cs
+using Avalonia; // Para Point
+using PixelWallEApp.Models;
+using PixelWallEApp.ViewModels; // Para MainWindowViewModel
+using System.Diagnostics; // Para Debug.WriteLine
+using PixelWallEApp.Models.Commands;
 
-// namespace PixelWallEApp.Models.Commands
-// {
-//     public class DrawLineCommand : ICommandDefinition
-//     {
-//         public int DirX { get; }
-//         public int DirY { get; }
-//         public int Distance { get; }
+namespace PixelWallEApp.Commands
+{
+    public class DrawLineCommand : ICommandDefinition
+    {
+        public string CommandName => "DrawLine";
 
-//         public DrawLineCommand(int dirX, int dirY, int distance)
-//         {
-//             // Basic validation - could be more robust in parser
-//             DirX = Math.Clamp(dirX, -1, 1);
-//             DirY = Math.Clamp(dirY, -1, 1);
-//             Distance = Math.Max(0, distance); // Distance cannot be negative
-//         }
+        public void Execute(MainWindowViewModel viewModel, params object[] parameters)
+        {
+            if (parameters.Length < 3)
+            {
+                viewModel.StatusMessage = "DrawLineCommand Error: Insufficient parameters (expected dirX, dirY, distance).";
+                Debug.WriteLine(viewModel.StatusMessage);
+                return;
+            }
 
-//         public string? Execute(WallEState wallEState, CanvasState canvasState)
-//         {
-//             if (!wallEState.IsSpawned)
-//             {
-//                  return "Runtime Error: Wall-E position not initialized. Use Spawn(x, y) first.";
-//             }
+            if (!(parameters[0] is int dirX) ||
+                !(parameters[1] is int dirY) ||
+                !(parameters[2] is int distance))
+            {
+                viewModel.StatusMessage = "DrawLineCommand Error: Invalid parameter types.";
+                Debug.WriteLine(viewModel.StatusMessage);
+                return;
+            }
 
-//             if (wallEState.BrushColor == Colors.Transparent)
-//             {
-//                 // If transparent, just move Wall-E without drawing
-//                 for (int i = 0; i < Distance; i++)
-//                 {
-//                     wallEState.X += DirX;
-//                     wallEState.Y += DirY;
-//                      // Optional: Clamp position if it goes out of bounds during move? Spec doesn't say.
-//                      // wallEState.X = Math.Clamp(wallEState.X, 0, canvasState.Size - 1);
-//                      // wallEState.Y = Math.Clamp(wallEState.Y, 0, canvasState.Size - 1);
-//                 }
-//                  // Final position check (or maybe error if *any* step goes OOB?)
-//                 if (wallEState.X < 0 || wallEState.X >= canvasState.Size || wallEState.Y < 0 || wallEState.Y >= canvasState.Size)
-//                 {
-//                     // Revert? Or just warn? Let's just set the final position for now as per spec example
-//                 }
-//                 return null;
-//             }
+            // --- INICIO DE LA LÓGICA COPIADA Y ADAPTADA DE MainWindowViewModel.DrawLine ---
+            if (!IsDirectionValid.DirectionValid(dirX) || !IsDirectionValid.DirectionValid(dirY) || distance <= 0)
+            {
+                viewModel.StatusMessage = "DrawLine Error: Invalid direction or distance.";
+                Debug.WriteLine(viewModel.StatusMessage);
+                return;
+            }
 
+            // Acceder al estado de Wall-E y al canvas size a través del viewModel
+            Point startPoint = viewModel._wallE.CurrentPosition; // Acceso directo al campo _wallE
+            Point tentativeEndPoint = new Point(
+                startPoint.X + (dirX * distance),
+                startPoint.Y + (dirY * distance)
+            );
 
-//             int currentX = wallEState.X;
-//             int currentY = wallEState.Y;
-//             int lastDrawnX = currentX;
-//             int lastDrawnY = currentY;
+            int finalX = (int)tentativeEndPoint.X;
+            int finalY = (int)tentativeEndPoint.Y;
 
-//             // Brush size handling (must be odd)
-//             int brushSize = wallEState.BrushSize;
-//             if (brushSize % 2 == 0)
-//             {
-//                 brushSize = Math.Max(1, brushSize - 1); // Use odd size immediately smaller
-//             }
-//             int brushOffset = brushSize / 2; // Integer division gives offset from center
+            if (finalX < 0 || finalX >= viewModel.LogicalCanvasSize || 
+                finalY < 0 || finalY >= viewModel.LogicalCanvasSize)
+            {
+                viewModel.StatusMessage = $"DrawLine Warning: Path from ({startPoint.X},{startPoint.Y}) towards ({tentativeEndPoint.X},{tentativeEndPoint.Y}) goes out of bounds (0-{viewModel.LogicalCanvasSize-1}). Line not drawn.";
+                Debug.WriteLine(viewModel.StatusMessage);
+                return; 
+            }
+            
+            Point endPoint = tentativeEndPoint;
 
-//             // Draw points along the line
-//             for (int i = 0; i < Distance; i++)
-//             {
-//                 // Apply brush centered at (currentX, currentY)
-//                 for (int brushY = -brushOffset; brushY <= brushOffset; brushY++)
-//                 {
-//                     for (int brushX = -brushOffset; brushX <= brushOffset; brushX++)
-//                     {
-//                         int pixelX = currentX + brushX;
-//                         int pixelY = currentY + brushY;
+            if (viewModel._wallE.BrushColor != Avalonia.Media.Brushes.Transparent)
+            {
+                // Usar las propiedades de _wallE del viewModel
+                var lineToAdd = new LineModel(startPoint, endPoint, viewModel._wallE.BrushColor, viewModel._wallE.PenThickness);
+                viewModel.Lines.Add(lineToAdd); // Acceso a la colección Lines del viewModel
+                viewModel.StatusMessage = $"Line drawn from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).";
+            }
+            else
+            {
+                 viewModel.StatusMessage = $"Wall-E moved (transparently) from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).";
+            }
+            
+            // Actualizar la posición de Wall-E en el viewModel
+            viewModel._wallE.CurrentPosition = endPoint;
+            // --- FIN DE LA LÓGICA COPIADA Y ADAPTADA ---
+        }
 
-//                         // Check bounds before drawing
-//                         if (pixelX >= 0 && pixelX < canvasState.Size && pixelY >= 0 && pixelY < canvasState.Size)
-//                         {
-//                             canvasState.SetPixel(pixelX, pixelY, wallEState.BrushColor);
-//                         }
-//                     }
-//                 }
-
-//                 // Update position for the *next* point (or final position)
-//                 lastDrawnX = currentX; // Remember the center of the last drawn brush square
-//                 lastDrawnY = currentY;
-//                 currentX += DirX;
-//                 currentY += DirY;
-//             }
-
-//              // Spec: "new position of Wall-E will be en the end of the line (last pixel drawn)"
-//              // This means the center of the last drawn brush square.
-//             wallEState.X = lastDrawnX;
-//             wallEState.Y = lastDrawnY;
-
-
-//             // Optional: Add check if final Wall-E position is out of bounds after drawing?
-//             // The spec example implies the final position is just calculated, even if OOB.
-//             // The example shows (15,10) after DrawLine(1,0,5) from (10,10).
-
-//             return null; // Success
-//         }
-//     }
-// }
+        // Método auxiliar (puede ser estático o parte de una clase de utilidad si se comparte)
+        // private bool IsDirectionValid(int dirValue)
+        // {
+        //     return dirValue >= -1 && dirValue <= 1;
+        // }
+    }
+}
