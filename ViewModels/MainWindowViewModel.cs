@@ -4,7 +4,7 @@ using Avalonia.Media;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using PixelWallEApp.Models;
-using PixelWallEApp.Commands; // ¡Añadir using para los comandos!
+using PixelWallEApp.Models.Commands;
 using System.Linq;
 using System;
 using System.Diagnostics;
@@ -13,23 +13,29 @@ namespace PixelWallEApp.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        // Hacer _wallE público para que los comandos puedan accederlo (o crear propiedades/métodos)
-        public readonly WallEStateModel _wallE; 
+        public readonly WallEStateModel _wallE;
         public ObservableCollection<LineModel> Lines { get; }
 
-        // ... (LogicalCanvasSize, NewCanvasSizeInput, StatusMessage y Commands sin cambios) ...
         private int _logicalCanvasSize = 50;
         public int LogicalCanvasSize
         {
             get => _logicalCanvasSize;
             set
             {
-                if (SetField(ref _logicalCanvasSize, value > 0 ? value : 1)) 
+                if (SetField(ref _logicalCanvasSize, value > 0 ? value : 1))
                 {
-                    ExecuteClearCanvas(null);
-                    StatusMessage = $"Canvas resized to {value}x{value}.";
+                    ExecuteClearCanvas(null); // Llama al método que usa comandos
+                    ReportCommandStatus($"Canvas resized to {value}x{value}.");
                 }
             }
+        }
+        public void ExecuteClearCanvas(object? parameter)
+        {
+            Lines.Clear();
+            _wallE.CurrentPosition = new Point(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
+            _wallE.BrushColor = Brushes.Transparent;
+            _wallE.PenThickness = 1;
+            ReportCommandStatus("Canvas cleared.");
         }
 
         private string _newCanvasSizeInput = "50";
@@ -56,54 +62,62 @@ namespace PixelWallEApp.ViewModels
         public ICommand ClearCanvasCommand { get; }
         public ICommand ResizeCanvasCommand { get; }
 
-        // Instancia del comando DrawLine
-        private readonly DrawLineCommand _drawLineCmdInstance;
 
         public MainWindowViewModel()
         {
             _wallE = new WallEStateModel();
             Lines = new ObservableCollection<LineModel>();
 
-            // Crear instancia del comando
-            _drawLineCmdInstance = new DrawLineCommand();
-
             RunTestDrawingCommand = new RelayCommand(ExecuteRunTestDrawing);
-            ClearCanvasCommand = new RelayCommand(ExecuteClearCanvas);
-            ResizeCanvasCommand = new RelayCommand(ExecuteResizeCanvas, CanExecuteResizeCanvas);
+            ClearCanvasCommand = new RelayCommand(ExecuteClearCanvasAction); // Cambiado para distinguir
+            ResizeCanvasCommand = new RelayCommand(ExecuteResizeCanvasAction, CanExecuteResizeCanvas); // Cambiado
 
-            _wallE.CurrentPosition = new Point(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
-            _wallE.PenThickness = 1;
+            // Inicializar Wall-E
+            var initialSpawnCmd = new SpawnCommand(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
+            initialSpawnCmd.Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+
+            var initialSizeCmd = new SetPenSizeCommand(1);
+            initialSizeCmd.Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+        }
+
+        private void ReportCommandStatus(string message)
+        {
+            StatusMessage = message;
         }
 
         public void ExecuteRunTestDrawing(object? parameter)
         {
-            StatusMessage = "Running test drawing...";
-            Spawn(10, 10);
-            SetColor("Red");
-            SetSize(1);
-            // Usar el comando DrawLine
-            _drawLineCmdInstance.Execute(this, 1, 0, LogicalCanvasSize - 25);
+            ReportCommandStatus("Running test drawing...");
 
-            SetColor("Blue");
-            SetSize(1);
-            Spawn(5, LogicalCanvasSize - 5);
-            _drawLineCmdInstance.Execute(this, 1, 0, 10);
+            // Usar los nuevos comandos
+            new SpawnCommand(10, 10).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            new SetColorCommand("Red").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            new SetPenSizeCommand(1).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            new DrawLineCommand(1, 0, LogicalCanvasSize - 25).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
 
-            SetColor("Green");
-            Spawn(LogicalCanvasSize -5, LogicalCanvasSize -5);
-            _drawLineCmdInstance.Execute(this, 1, 0, 10);
+            new SetColorCommand("Blue").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            new SetPenSizeCommand(1).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus); // PenSize ya fue definido
+            new SpawnCommand(5, LogicalCanvasSize - 5).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            new DrawLineCommand(1, 0, 10).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
 
-            StatusMessage = "Test drawing finished. Check console for warnings.";
+            // new SetColorCommand("Green").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            // new SpawnCommand(LogicalCanvasSize - 5, LogicalCanvasSize - 5).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            // new DrawLineCommand(1, 0, 10).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus); // Este intentará salirse
+
+            // El StatusMessage se actualizará por la última llamada a ReportCommandStatus
+            // Puedes añadir un mensaje general si lo deseas:
+            // ReportCommandStatus("Test drawing finished. Check console for warnings/errors.");
         }
 
-        // ... (ExecuteClearCanvas, CanExecuteResizeCanvas, ExecuteResizeCanvas sin cambios) ...
-        public void ExecuteClearCanvas(object? parameter)
+        // Este es el método que el ICommand "ClearCanvasCommand" realmente llama
+        private void ExecuteClearCanvasAction(object? parameter)
         {
             Lines.Clear();
-            _wallE.CurrentPosition = new Point(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
-            _wallE.BrushColor = Brushes.Transparent;
-            _wallE.PenThickness = 1;
-            StatusMessage = "Canvas cleared.";
+            // Re-spawn y resetear el pincel usando comandos
+            new SpawnCommand(LogicalCanvasSize / 2, LogicalCanvasSize / 2).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            new SetColorCommand("Transparent").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            new SetPenSizeCommand(1).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            ReportCommandStatus("Canvas cleared.");
         }
 
         public bool CanExecuteResizeCanvas(object? parameter)
@@ -111,58 +125,22 @@ namespace PixelWallEApp.ViewModels
             return int.TryParse(NewCanvasSizeInput, out int size) && size > 0;
         }
 
-        public void ExecuteResizeCanvas(object? parameter)
+        // Este es el método que el ICommand "ResizeCanvasCommand" realmente llama
+        private void ExecuteResizeCanvasAction(object? parameter)
         {
             if (int.TryParse(NewCanvasSizeInput, out int size) && size > 0)
             {
+                // La propiedad LogicalCanvasSize al ser cambiada ya llama a ExecuteClearCanvasAction (indirectamente)
+                // y actualiza el StatusMessage.
                 LogicalCanvasSize = size;
             }
             else
             {
-                StatusMessage = "Invalid size input.";
+                ReportCommandStatus("Invalid size input for resize.");
             }
         }
-
-
-       // Los métodos Spawn, SetColor, SetSize pueden permanecer aquí o también convertirse en comandos
-        public void Spawn(int x, int y)
-        {
-            if (x >= 0 && x < LogicalCanvasSize && y >= 0 && y < LogicalCanvasSize)
-            {
-                _wallE.CurrentPosition = new Point(x, y);
-                StatusMessage = $"Wall-E spawned at ({x},{y}).";
-            }
-            else
-            {
-                StatusMessage = $"Spawn Error: Position ({x},{y}) is outside canvas (0-{LogicalCanvasSize-1}). Wall-E not moved.";
-                Debug.WriteLine(StatusMessage);
-            }
-        }
-
-        public void SetColor(string colorName)
-        {
-            _wallE.BrushColor = colorName.ToLower() switch
-            {
-                "red" => Brushes.Red, "blue" => Brushes.Blue, "green" => Brushes.Green,
-                "yellow" => Brushes.Yellow, "orange" => Brushes.Orange, "purple" => Brushes.Purple,
-                "black" => Brushes.Black, "white" => Brushes.White, "transparent" => Brushes.Transparent,
-                _ => Brushes.Black
-            };
-        }
-
-        public void SetSize(int k)
-        {
-            int newThickness = 1;
-            if (k > 0)
-            {
-                newThickness = (k % 2 == 0) ? k - 1 : k;
-                if (newThickness < 1) newThickness = 1;
-            }
-            _wallE.PenThickness = newThickness;
-        }
-
-        // El método DrawLine original ya no está aquí, fue movido a DrawLineCommand.
-        // El método IsDirectionValid puede permanecer o ser movido a una clase de utilidad
-        // si es usado por múltiples comandos. Por ahora, lo dejé en DrawLineCommand.
     }
 }
+
+// Los métodos Spawn, SetColor, SetSize ya no son necesarios como métodos públicos directos aquí
+

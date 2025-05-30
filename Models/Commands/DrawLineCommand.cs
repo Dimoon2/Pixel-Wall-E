@@ -1,76 +1,78 @@
-// Commands/DrawLineCommand.cs
+// Models/Commands/DrawLineCommand.cs
 using Avalonia; // Para Point
+using System.Collections.ObjectModel;
 using PixelWallEApp.Models;
-using PixelWallEApp.ViewModels; // Para MainWindowViewModel
-using System.Diagnostics; // Para Debug.WriteLine
+using System;
+using System.Diagnostics; // Para Debug.WriteLine si aún se usa
 using PixelWallEApp.Models.Commands;
+using Avalonia.Media;
 
-namespace PixelWallEApp.Commands
+namespace PixelWallEApp.Models.Commands
 {
     public class DrawLineCommand : ICommandDefinition
     {
-        public string CommandName => "DrawLine";
+        private readonly int _dirX;
+        private readonly int _dirY;
+        private readonly int _distance;
 
-        public void Execute(MainWindowViewModel viewModel, params object[] parameters)
+        public DrawLineCommand(int dirX, int dirY, int distance)
         {
-            if (parameters.Length < 3)
+            _dirX = dirX;
+            _dirY = dirY;
+            _distance = distance;
+        }
+
+        private bool IsDirectionValid(int dirValue)
+        {
+            return dirValue >= -1 && dirValue <= 1;
+        }
+
+        public bool Execute(
+            WallEStateModel wallEState,
+            ObservableCollection<LineModel> linesToDraw,
+            int logicalCanvasSize,
+            Action<string> statusReporter)
+        {
+            if (!IsDirectionValid(_dirX) || !IsDirectionValid(_dirY) || _distance <= 0)
             {
-                viewModel.StatusMessage = "DrawLineCommand Error: Insufficient parameters (expected dirX, dirY, distance).";
-                Debug.WriteLine(viewModel.StatusMessage);
-                return;
+                statusReporter($"DrawLineCommand Error: Invalid parameters provided to command (dirX:{_dirX}, dirY:{_dirY}, dist:{_distance}).");
+                Debug.WriteLine($"DrawLineCommand Error: Invalid parameters (dirX:{_dirX}, dirY:{_dirY}, dist:{_distance}).");
+                statusReporter("\nThe build failed. Fix the build errors and run again.");//ponerlo rojo
+                return false; // Fallo en los parámetros del comando
             }
 
-            if (!(parameters[0] is int dirX) ||
-                !(parameters[1] is int dirY) ||
-                !(parameters[2] is int distance))
-            {
-                viewModel.StatusMessage = "DrawLineCommand Error: Invalid parameter types.";
-                Debug.WriteLine(viewModel.StatusMessage);
-                return;
-            }
-
-            // --- INICIO DE LA LÓGICA COPIADA Y ADAPTADA DE MainWindowViewModel.DrawLine ---
-            if (!IsDirectionValid.DirectionValid(dirX) || !IsDirectionValid.DirectionValid(dirY) || distance <= 0)
-            {
-                viewModel.StatusMessage = "DrawLine Error: Invalid direction or distance.";
-                Debug.WriteLine(viewModel.StatusMessage);
-                return;
-            }
-
-            // Acceder al estado de Wall-E y al canvas size a través del viewModel
-            Point startPoint = viewModel._wallE.CurrentPosition; // Acceso directo al campo _wallE
+            Point startPoint = wallEState.CurrentPosition;
             Point tentativeEndPoint = new Point(
-                startPoint.X + (dirX * distance),
-                startPoint.Y + (dirY * distance)
+                startPoint.X + (_dirX * _distance),
+                startPoint.Y + (_dirY * _distance)
             );
 
             int finalX = (int)tentativeEndPoint.X;
             int finalY = (int)tentativeEndPoint.Y;
 
-            if (finalX < 0 || finalX >= viewModel.LogicalCanvasSize || 
-                finalY < 0 || finalY >= viewModel.LogicalCanvasSize)
+            if (finalX < 0 || finalX >= logicalCanvasSize || finalY < 0 || finalY >= logicalCanvasSize)
             {
-                viewModel.StatusMessage = $"DrawLine Warning: Path from ({startPoint.X},{startPoint.Y}) towards ({tentativeEndPoint.X},{tentativeEndPoint.Y}) goes out of bounds (0-{viewModel.LogicalCanvasSize-1}). Line not drawn.";
-                Debug.WriteLine(viewModel.StatusMessage);
-                return; 
+                statusReporter($"DrawLine Warning: Path from ({startPoint.X},{startPoint.Y}) towards ({tentativeEndPoint.X},{tentativeEndPoint.Y}) goes out of bounds (0-{logicalCanvasSize - 1}). Line not drawn. \n\nThe build failed. Fix the build errors and run again.");
+               // statusReporter("\nThe build failed. Fix the build errors and run again.");//ponerlo rojo
+                Debug.WriteLine($"DrawLine Warning: Path goes out of bounds. Line from ({startPoint.X},{startPoint.Y}) to ({tentativeEndPoint.X},{tentativeEndPoint.Y}) not drawn.");
+                return true; // El comando se ejecutó (intentó), aunque la línea no se pintó.
             }
-            
+
             Point endPoint = tentativeEndPoint;
 
-            if (viewModel._wallE.BrushColor != Avalonia.Media.Brushes.Transparent)
+            if (wallEState.BrushColor.ToString() != Brushes.Transparent.ToString()) // Comparación de IBrush puede ser tricky
             {
-                // Usar las propiedades de _wallE del viewModel
-                var lineToAdd = new LineModel(startPoint, endPoint, viewModel._wallE.BrushColor, viewModel._wallE.PenThickness);
-                viewModel.Lines.Add(lineToAdd); // Acceso a la colección Lines del viewModel
-                viewModel.StatusMessage = $"Line drawn from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).";
+                var lineToAdd = new LineModel(startPoint, endPoint, wallEState.BrushColor, wallEState.PenThickness);
+                linesToDraw.Add(lineToAdd);
+                statusReporter($"Line drawn from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).");
             }
             else
             {
-                 viewModel.StatusMessage = $"Wall-E moved (transparently) from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).";
+                statusReporter($"Wall-E moved (transparently) from ({startPoint.X},{startPoint.Y}) to ({endPoint.X},{endPoint.Y}).");
             }
             
-            // Actualizar la posición de Wall-E en el viewModel
-            viewModel._wallE.CurrentPosition = endPoint;
+            wallEState.CurrentPosition = endPoint; // Mover Wall-E al punto final
+            return true; // Comando ejecutado con éxito
         }
     }
 }

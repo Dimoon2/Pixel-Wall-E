@@ -77,12 +77,13 @@
         <Grid Grid.Row="1" Background="#A94CA4" ColumnDefinitions="Auto,*">
             <!-- Columna 0 CONSOLEE
              Codigo  -->
-           <Grid  Grid.Column="0" Width="700" Background="Black" RowDefinitions="*, 300"> 
+           <Grid  Grid.Column="0" Width="700" Background="Black" RowDefinitions="*, 300">
                 <AvaloniaEdit:TextEditor Grid.Row="0" Text="AAAA"
                            ShowLineNumbers="True"
                            FontFamily="Cascadia Code,Consolas,Menlo,Monospace"/> 
                 <!-- Errores     -->
                <Grid Grid.Row="1" Background="#80547E">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="Black"  Margin="0,5,0,0" TextWrapping="Wrap"/>
                </Grid>
            </Grid>
            <!-- Column 1  CANVASSSSSSS-->
@@ -103,7 +104,7 @@
             Grid.Row="2"
             Background="#F190EC"
             RowDefinitions="30">
-             <TextBlock Text="{Binding StatusMessage}" Foreground="DarkSlateGray" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/>
+             <!-- <TextBlock Text="{Binding StatusMessage}" Foreground="DarkSlateGray" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/> -->
         </Grid>
     </Grid>
 
