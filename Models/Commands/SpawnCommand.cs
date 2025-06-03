@@ -9,13 +9,13 @@ namespace PixelWallEApp.Models.Commands
 {
     public class SpawnCommand : ICommandDefinition
     {
-        private readonly int _x;
-        private readonly int _y;
+        private readonly int x;
+        private readonly int y;
 
         public SpawnCommand(int x, int y)
         {
-            _x = x;
-            _y = y;
+            x = x;
+            y = y;
         }
 
         public bool Execute(
@@ -24,15 +24,15 @@ namespace PixelWallEApp.Models.Commands
             int logicalCanvasSize,
             Action<string> statusReporter)
         {
-            if (_x >= 0 && _x < logicalCanvasSize && _y >= 0 && _y < logicalCanvasSize)
+            if (x >= 0 && x < logicalCanvasSize && y >= 0 && y < logicalCanvasSize)
             {
-                wallEState.CurrentPosition = new Point(_x, _y);
-                statusReporter($"Wall-E spawned at ({_x},{_y}).");
+                wallEState.CurrentPosition = new Point(x, y);
+                statusReporter($"Wall-E spawned at ({x},{y}).");
                 return true;
             }
             else
             {
-                string msg = $"SpawnCommand Error: Position ({_x},{_y}) is outside canvas (0-{logicalCanvasSize - 1}). Wall-E not moved.";
+                string msg = $"SpawnCommand Error: Position ({x},{y}) is outside canvas (0-{logicalCanvasSize - 1}). Wall-E not moved.";
                 statusReporter(msg);
                 statusReporter("\nThe build failed. Fix the build errors and run again.");//ponerlo rojo
                 Debug.WriteLine(msg);
