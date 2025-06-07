@@ -1,0 +1,37 @@
+
+# Build Folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider files
+.idea/
+*.sln.iml
+
+# VS Code settings (optional)
+.vscode/
+
+# User-specific files
+*.swp
+*.bak
+*.tmp
+
+# Test results
+TestResults/
+
+# Local database files
+App_Data/*.mdf
+App_Data/*.ldf
+
+# Audio or media cache (if any temporary files are generated)
+*.log
+
+# OS generated files
+Thumbs.db
+Desktop.ini

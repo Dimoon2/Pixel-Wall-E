@@ -1,0 +1,1 @@
+//(Class to hold Wall-E's state: X, Y, CurrentColor, BrushSize)
