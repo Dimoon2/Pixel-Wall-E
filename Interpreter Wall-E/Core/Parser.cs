@@ -379,7 +379,7 @@ namespace Interpreter.Core
         // --- Expression Parsers ---
         private ExpressionNode ParseExpression()
         {
-            return ParseLogicalOrExpression();
+            return ParseLogicalAndExpression();
         }
 
         private ExpressionNode ParseLogicalAndExpression() // &&
