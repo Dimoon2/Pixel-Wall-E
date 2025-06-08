@@ -17,7 +17,7 @@ namespace Interpreter.Core.Ast.Statements
 
         public override string ToString()
         {
-            return $"DrawLine(Value: {ExpresDirX}, Value: {ExpresDirY}, Value: {ExpresDistance})";
+            return $"DrawLine(DirX: {ExpresDirX}, DirY: {ExpresDirY}, Distance: {ExpresDistance})";
         }
     }
 }

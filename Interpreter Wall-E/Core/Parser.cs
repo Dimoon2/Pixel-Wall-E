@@ -111,7 +111,6 @@ namespace Interpreter.Core
                         Console.Error.WriteLine($"!!!! DEBUG: Potentially stuck skipping Newlines. Token: {currentToken}");
                     }
                 }
-
                 // 2. If, after skipping newlines, we are at EOF, then break the main loop.
                 if (currentTokenType == TokenType.EndOfFile)
                 {
@@ -181,6 +180,8 @@ namespace Interpreter.Core
                     return ParseColorStatement();
                 case TokenType.KeywordSize:
                     return ParseSizeStatement();
+                case TokenType.KeywordDrawLine:
+                    return ParseDrawLineStatement();
                 case TokenType.Identifier:
                     if (PeekType() == TokenType.Arrow)
                     {
@@ -197,6 +198,7 @@ namespace Interpreter.Core
                     }
                 case TokenType.KeywordGoTo:
                     return ParseGoToStatement();
+
                 // ... other cases ...
                 default:
                     errors.Add($"Parser Error: Unexpected token {currentTokenType} ('{currentToken.Value}') at start of a statement. Skipping this token.");
@@ -256,6 +258,23 @@ namespace Interpreter.Core
             ExpressionNode size = ParseExpression();
             Consume(TokenType.RParen);
             return new SizeNode(size);
+        }
+
+        private DrawLineNode ParseDrawLineStatement()
+        {
+            if (Consume(TokenType.KeywordDrawLine) == null) return null!;
+            if (Match(TokenType.LParen) == null) return null!;
+            ExpressionNode dirX = ParseExpression();
+            if (dirX == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+            ExpressionNode dirY = ParseExpression();
+            if (dirY == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+            ExpressionNode dist = ParseExpression();
+            if (dist == null) return null!;
+            if (Match(TokenType.RParen) == null) return null!;
+
+            return new DrawLineNode(dirX, dirY, dist);
         }
 
         private AssignmentNode ParseAssignmentStatement()
@@ -522,11 +541,11 @@ namespace Interpreter.Core
 
             while (currentTokenType == TokenType.Comma)
             {
-                Match(TokenType.Comma); 
+                Match(TokenType.Comma);
                 ExpressionNode nextArgument = ParseExpression();
                 if (nextArgument == null)
                 {
-                    return null!; 
+                    return null!;
                 }
                 arguments.Add(nextArgument);
             }
