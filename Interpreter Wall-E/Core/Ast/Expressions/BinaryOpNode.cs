@@ -20,7 +20,7 @@ namespace Interpreter.Core.Ast.Expressions
 
         public override string ToString()
         {
-            return $"BinaryOp{Left} {Operator.Value} {Right})";
+            return $"BinaryOp({Left} {Operator.Value} {Right})";
         }
     }
 }

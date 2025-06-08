@@ -25,7 +25,7 @@ namespace Interpreter.Core.Ast.Statements
         {
             //   //  GoTo [label] (condition)
             if (Condition == null) return $"GoTo[{LabelName}]";
-            return $"GoTo[{LabelName}] ({Condition}) )";
+            return $"GoTo[{LabelName}] ({Condition})";
         }
     }
 }

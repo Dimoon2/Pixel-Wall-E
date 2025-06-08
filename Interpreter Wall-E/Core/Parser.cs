@@ -180,14 +180,22 @@ namespace Interpreter.Core
                     return ParseColorStatement();
                 case TokenType.KeywordSize:
                     return ParseSizeStatement();
+
                 case TokenType.KeywordDrawLine:
                     return ParseDrawLineStatement();
+                case TokenType.KeywordDrawCircle:
+                    return ParseDrawCircleStatement();
+                case TokenType.KeywordDrawRectangle:
+                    return ParseDrawRectangleStatement();
+                case TokenType.KeywordFill:
+                    return ParseFillStatement();
+
                 case TokenType.Identifier:
                     if (PeekType() == TokenType.Arrow)
                     {
                         return ParseAssignmentStatement();
                     }
-                    else if (PeekType() == TokenType.Colon)// FOR LABELS
+                    else if (PeekType() == TokenType.Newline)// FOR LABELS
                     {
                         return ParseLabelStatement();
                     }
@@ -277,6 +285,59 @@ namespace Interpreter.Core
             return new DrawLineNode(dirX, dirY, dist);
         }
 
+        private DrawCircleNode ParseDrawCircleStatement()
+        {
+            if (Consume(TokenType.KeywordDrawCircle) == null) return null!;
+            if (Match(TokenType.LParen) == null) return null!;
+            ExpressionNode dirX = ParseExpression();
+            if (dirX == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+            ExpressionNode dirY = ParseExpression();
+            if (dirY == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+            ExpressionNode radius = ParseExpression();
+            if (radius == null) return null!;
+            if (Match(TokenType.RParen) == null) return null!;
+
+            return new DrawCircleNode(dirX, dirY, radius);
+        }
+
+        private DrawRectangleNode ParseDrawRectangleStatement()
+        {
+            if (Consume(TokenType.KeywordDrawRectangle) == null) return null!;
+            if (Match(TokenType.LParen) == null) return null!;
+
+            ExpressionNode dirX = ParseExpression();
+            if (dirX == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+
+            ExpressionNode dirY = ParseExpression();
+            if (dirY == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+
+            ExpressionNode dist = ParseExpression();
+            if (dist == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+
+            ExpressionNode width = ParseExpression();
+            if (width == null) return null!;
+            if (Match(TokenType.Comma) == null) return null!;
+
+            ExpressionNode height = ParseExpression();
+            if (height == null) return null!;
+            if (Match(TokenType.RParen) == null) return null!;
+
+            return new DrawRectangleNode(dirX, dirY, dist, width, height);
+        }
+
+        private FillNode ParseFillStatement()
+        {
+            Consume(TokenType.KeywordFill);
+            if (Match(TokenType.LParen) == null) return null!;
+            if (Match(TokenType.RParen) == null) return null!;
+            return new FillNode();
+        }
+
         private AssignmentNode ParseAssignmentStatement()
         {
             Token identifier = Match(TokenType.Identifier);
@@ -293,7 +354,6 @@ namespace Interpreter.Core
         {
             Token identifier = Match(TokenType.Identifier);
             if (identifier == null) return null!;
-            if (Match(TokenType.Colon) == null) return null!;
 
             return new LabelNode(identifier);
         }
@@ -311,14 +371,9 @@ namespace Interpreter.Core
             }
 
             Consume(TokenType.RBracket);
-
-            ExpressionNode condition = null!;
-            if (currentTokenType == TokenType.LParen)
-            {
-                Consume(TokenType.LParen);
-                condition = ParseExpression();
-                if (condition == null) return null!;
-            }
+            Consume(TokenType.LParen);
+            ExpressionNode condition = ParseExpression();
+            Consume(TokenType.RParen);
             return new GoToNode(labelIdentifier, condition);
         }
         // --- Expression Parsers ---
@@ -326,24 +381,26 @@ namespace Interpreter.Core
         {
             return ParseLogicalOrExpression();
         }
-        private ExpressionNode ParseLogicalOrExpression() // ||
+
+        private ExpressionNode ParseLogicalAndExpression() // &&
         {
-            ExpressionNode left = ParseLogicalAndExpression();
-            while (currentTokenType == TokenType.Or)
+            ExpressionNode left = ParseLogicalOrExpression();
+            while (currentTokenType == TokenType.And)
             {
-                Token operatorToken = Match(TokenType.Or);
-                ExpressionNode right = ParseLogicalAndExpression();
+                Token operatorToken = Match(TokenType.And);
+                ExpressionNode right = ParseLogicalOrExpression();
                 if (right == null) return null!;
                 left = new BinaryOpNode(left, operatorToken, right);
             }
             return left;
         }
-        private ExpressionNode ParseLogicalAndExpression() // &&
+
+        private ExpressionNode ParseLogicalOrExpression() // ||
         {
             ExpressionNode left = ParseComparisonExpression();
-            while (currentTokenType == TokenType.And)
+            while (currentTokenType == TokenType.Or)
             {
-                Token operatorToken = Match(TokenType.And);
+                Token operatorToken = Match(TokenType.Or);
                 ExpressionNode right = ParseComparisonExpression();
                 if (right == null) return null!;
                 left = new BinaryOpNode(left, operatorToken, right);

@@ -76,7 +76,7 @@ namespace Interpreter.Core
         public string Value { get; }    // The raw lexeme, e.g., "Spawn", "<-", "\"Red\""
         public object Literal { get; }  // The actual value, e.g., int 5, string "Red" (no quotes)
 
-        public Token(TokenType type, string value, object literal = null)
+        public Token(TokenType type, string value, object literal = null!)
         {
             Type = type;
             Value = value;
