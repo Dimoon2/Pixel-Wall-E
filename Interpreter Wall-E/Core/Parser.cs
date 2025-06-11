@@ -563,6 +563,7 @@ namespace Interpreter.Core
 
         private FunctionCallNode ParseArgumentedFunction(Token functionKeywordToken)
         {
+            Advance();
             if (Match(TokenType.LParen) == null)
             {
                 errors.Add($"Parser Error: Expected '(' after function keyword '{functionKeywordToken.Value}'.");
