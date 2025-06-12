@@ -3,6 +3,8 @@ using System.Collections.Generic; // For List used by some AST nodes
 using Interpreter.Core.Ast;
 using Interpreter.Core.Ast.Statements;
 using Interpreter.Core.Ast.Expressions;
+using System.Linq.Expressions;
+using Interpreter.Core.Interpreter.Helpers;
 namespace Interpreter.Core.Interpreter
 {
     public class Interpreter
@@ -184,5 +186,87 @@ namespace Interpreter.Core.Interpreter
         //     // TODO: Evaluate node.Condition (should result in a boolean or number treated as boolean)
         //     // TODO: If condition is true, call runtimeEnvironment.RequestGoTo(node.TargetLabel.Value)
         // }
+
+        ////////////\\\\\\\\\\\\\\Expression Evaluation\\\\\\\\\\\\/////////////////
+        private Object EvaluateExpression(ExpressionNode expression)
+        {
+            if (expression == null)
+            {
+                throw new RuntimeException("Cannot evaluate a null expression.");
+            }
+            switch (expression)
+            {
+                case NumberLiteralNode numberNode:
+                    return VisitNumberNode(numberNode);
+
+                case StringLiteralNode stringNode:
+                    return VisitStringLiteralNode(stringNode);
+
+                case VariableNode variableNode:
+                    return VisitVariableNode(variableNode);
+
+                case BinaryOpNode binaryOpNode:
+                    return VisitBinaryOpNode(binaryOpNode);
+                default:
+                    throw new RuntimeException($"Unsupported expression type: {expression.GetType().Name}");
+            }
+        }
+
+        private object VisitNumberNode(NumberLiteralNode node)
+        {
+            if (node.NumberToken.Literal is int intVal)
+            {
+                return (double)intVal;
+            }
+            throw new RuntimeException($"Invalid literal for NumberToken: {node.NumberToken.Literal}");
+        }
+
+        private object VisitStringLiteralNode(StringLiteralNode node)
+        {
+            return node.StringToken.Literal?.ToString() ?? ""; //?
+        }
+
+        private object VisitVariableNode(VariableNode node)
+        {
+            return symbolTable.Get(node.IdentifierToken.Value);
+        }
+
+
+        private object VisitBinaryOpNode(BinaryOpNode node)
+        {
+            object leftValue = EvaluateExpression(node.Left);
+
+            // Handle && and || here
+            if (node.Operator.Type == TokenType.And)
+            {
+                if (!BinaryOperations.ConvertToBooleanStatic(leftValue)) return false;
+                object rightValueAnd = EvaluateExpression(node.Right);
+                return BinaryOperations.ConvertToBooleanStatic(rightValueAnd);
+            }
+            if (node.Operator.Type == TokenType.Or)
+            {
+                if (BinaryOperations.ConvertToBooleanStatic(leftValue)) return true;
+                object rightValueOr = EvaluateExpression(node.Right);
+                return BinaryOperations.ConvertToBooleanStatic(rightValueOr);
+            }
+
+            // For other operators, evaluate right operand and use the handler
+            object rightValue = EvaluateExpression(node.Right);
+
+            if (BinaryOperations.TryGetHandler(node.Operator.Type, out BinaryOperationHandler handler))
+            {
+                try
+                {
+                    return handler(leftValue, rightValue);
+                }
+                catch (RuntimeException) { throw; } // Re-throw exceptions
+                catch (Exception) // Catch other unexpected errors from handlers
+                {
+                    throw; // new RuntimeException($"Error during binary operation '{node.Operator.Value}': {ex.Message}", ex);
+                }
+            }
+
+            throw new RuntimeException($"Unsupported binary operator: {node.Operator.Type}");
+        }
     }
 }
