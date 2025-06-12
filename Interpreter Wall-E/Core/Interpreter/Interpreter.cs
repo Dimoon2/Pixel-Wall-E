@@ -207,6 +207,9 @@ namespace Interpreter.Core.Interpreter
 
                 case BinaryOpNode binaryOpNode:
                     return VisitBinaryOpNode(binaryOpNode);
+
+                    case FunctionCallNode functionCallNode:
+                  //  return VisitFunctionCallNode(functionCallNode);
                 default:
                     throw new RuntimeException($"Unsupported expression type: {expression.GetType().Name}");
             }
@@ -268,5 +271,10 @@ namespace Interpreter.Core.Interpreter
 
             throw new RuntimeException($"Unsupported binary operator: {node.Operator.Type}");
         }
+
+        // private object VisitFunctionCallNode(FunctionCallNode node)
+        // {
+
+        // }
     }
 }

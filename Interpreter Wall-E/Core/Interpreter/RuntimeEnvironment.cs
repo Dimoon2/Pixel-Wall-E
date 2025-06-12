@@ -78,7 +78,7 @@ namespace Interpreter.Core.Interpreter
                     throw new RuntimeException($"Runtime Error: Target label '{TargetLabel}' for GoTo disappeared.");
                 }
                 GoToPending = false;
-                TargetLabel = null;
+                TargetLabel = null!;
             }
         }
     }

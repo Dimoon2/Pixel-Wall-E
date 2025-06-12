@@ -113,7 +113,7 @@ namespace Interpreter.Core
                     }
                     else
                     {
-                        return new Token(TokenType.Illegal, numberStr, null);
+                        return new Token(TokenType.Illegal, numberStr, null!);
                     }
                 }
 

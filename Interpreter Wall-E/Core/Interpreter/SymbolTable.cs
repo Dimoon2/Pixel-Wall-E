@@ -8,7 +8,7 @@ namespace Interpreter.Core.Interpreter
         private Dictionary<string, object> symbols;
         private SymbolTable parent;
 
-        public SymbolTable() : this(null) { }
+        public SymbolTable() : this(null!) { }
         public SymbolTable(SymbolTable parentScope)
         {
             symbols = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase); // Case-insensitive for variable names
