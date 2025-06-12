@@ -50,6 +50,36 @@ namespace Interpreter.Core.Interpreter
             return labels.TryGetValue(labelName, out index);
         }
 
-       
+        public void RequestGoTo(string labelName)
+        {
+            if (TryGetLabelIndex(labelName, out _)) // Check if label exists
+            {
+                GoToPending = true;
+                TargetLabel = labelName;
+            }
+            else
+            {
+                throw new RuntimeException($"Runtime Error: GoTo target label '{labelName}' not found.");
+            }
+        }
+
+        // Call after each statement execution cycle to see if we need to jump
+        public void ProcessPendingGoTo()
+        {
+            if (GoToPending)
+            {
+                if (TryGetLabelIndex(TargetLabel, out int targetIndex))
+                {
+                    ProgramCounter = targetIndex; // Set PC to the statement *at* the label
+                }
+                else
+                {
+                    // This should have been caught by RequestGoTo, but as a safeguard:
+                    throw new RuntimeException($"Runtime Error: Target label '{TargetLabel}' for GoTo disappeared.");
+                }
+                GoToPending = false;
+                TargetLabel = null;
+            }
+        }
     }
 }

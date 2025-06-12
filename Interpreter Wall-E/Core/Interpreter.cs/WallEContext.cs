@@ -1,7 +1,7 @@
 using Interpreter.Core;
 using System.Text;
 
-namespace Interpreter.Core.Interpreter.Canvas
+namespace Interpreter.Core.Interpreter
 {
     public class WallEContext
     {
