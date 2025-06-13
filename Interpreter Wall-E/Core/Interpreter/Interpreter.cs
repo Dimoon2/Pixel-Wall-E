@@ -136,10 +136,28 @@ namespace Interpreter.Core.Interpreter
         }
         private void VisitSpawnNode(SpawnNode node)
         {
-            OutputLog.Add($"Executing: Spawn({node.XCoordinate}, {node.YCoordinate})");
-            // TODO: Evaluate expressions node.XCoordinate and node.YCoordinate
-            // TODO: Update wallEContext.CurrentX and wallEContext.CurrentY
-            // TODO: Check canvas bounds (optional, Spawn itself might not draw)
+            try
+            {
+                object XCoordinate = EvaluateExpression(node.XCoordinate);
+                object YCoordinate = EvaluateExpression(node.YCoordinate);
+                if (!(XCoordinate is double xVal))
+                    throw new RuntimeException($"Spawn X coordinate must be a number. Got {XCoordinate?.GetType().Name}.");
+                if (!(YCoordinate is double yVal))
+                    throw new RuntimeException($"Spawn Y coordinate must be a number. Got {YCoordinate?.GetType().Name}.");
+
+                if ((int)Math.Round(xVal) > canvas.Width || (int)Math.Round(yVal) > canvas.Width)
+                {
+                    throw new RuntimeException("Coordinate X or Y out of the bounds of the canvas");
+                }
+
+                wallEContext.CurrentX = (int)Math.Round(xVal); 
+                wallEContext.CurrentY = (int)Math.Round(yVal);
+                OutputLog.Add($"Executing: Spawn({node.XCoordinate}, {node.YCoordinate})");
+            }
+            catch(RuntimeException ex)
+            { 
+                throw new RuntimeException($"Error in Spawn statement: {ex.Message}");
+            }
         }
 
         private void VisitColorNode(ColorNode node)
