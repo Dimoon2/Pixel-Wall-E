@@ -24,7 +24,6 @@ namespace Interpreter.Core.Interpreter
             ProgramCounter = 0;
             labels.Clear();
             GoToPending = false;
-            labels = null!;
         }
 
         public void ScanLabels(ProgramNode programNode) //once before execution
