@@ -208,8 +208,8 @@ namespace Interpreter.Core.Interpreter
                 case BinaryOpNode binaryOpNode:
                     return VisitBinaryOpNode(binaryOpNode);
 
-                    case FunctionCallNode functionCallNode:
-                  //  return VisitFunctionCallNode(functionCallNode);
+                case FunctionCallNode functionCallNode:
+                //  return VisitFunctionCallNode(functionCallNode);
                 default:
                     throw new RuntimeException($"Unsupported expression type: {expression.GetType().Name}");
             }
@@ -272,9 +272,29 @@ namespace Interpreter.Core.Interpreter
             throw new RuntimeException($"Unsupported binary operator: {node.Operator.Type}");
         }
 
-        // private object VisitFunctionCallNode(FunctionCallNode node)
-        // {
+        private object VisitFunctionCallNode(FunctionCallNode node)
+        {
+            var evaluatedArgs = new List<object>();
+            foreach (var argExpr in node.Arguments)
+            {
+                evaluatedArgs.Add(EvaluateExpression(argExpr));
+            }
 
-        // }
+            // Use the FunctionHandlers helper class
+            if (FunctionHandlers.TryGetHandler(node.FunctionNameToken.Type, out BuiltInFunctionHandler handler))
+            {
+                try
+                {
+                    // Pass the necessary context to the handler
+                    return handler(evaluatedArgs, this.wallEContext, this.canvas, this.symbolTable);
+                }
+                catch (RuntimeException) { throw; } // Re-throw our specific exceptions
+                catch (Exception ex) // Catch other unexpected errors from handlers
+                {
+                    throw new RuntimeException($"Error during function call '{node.FunctionNameToken.Value}': {ex.Message}");
+                }
+            }
+            throw new RuntimeException($"Unknown built-in function keyword: {node.FunctionNameToken.Type} ('{node.FunctionNameToken.Value}')");
+        }
     }
 }

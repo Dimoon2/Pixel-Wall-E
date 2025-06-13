@@ -84,7 +84,7 @@ namespace Interpreter.Core.Interpreter
             else
             {
                 // Optional: Log an error or warning if trying to draw out of bounds
-                // Console.Error.WriteLine($"Warning: Attempt to draw at out-of-bounds coordinate ({x},{y}). Ignoring.");
+                 Console.Error.WriteLine($"Warning: Attempt to draw at out-of-bounds coordinate ({x},{y}). Ignoring.");
             }
         }
 
