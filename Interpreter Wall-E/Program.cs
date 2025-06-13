@@ -148,8 +148,8 @@ namespace Interpreter
                     SymbolTable simSymbolTable = new SymbolTable();
                     RuntimeEnvironment simRuntimeEnv = new RuntimeEnvironment();
 
-                    Core.Interpreter.Interpreter interpreter =
-                        new Core.Interpreter.Interpreter(simCanvas, simWallE, simSymbolTable, simRuntimeEnv);
+                    Core.Interpreter.Interprete interpreter =
+                        new Core.Interpreter.Interprete(simCanvas, simWallE, simSymbolTable, simRuntimeEnv);
 
                     Console.WriteLine("Executing program...");
                     interpreter.ExecuteProgram(astRoot);
