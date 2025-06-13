@@ -1,11 +1,11 @@
 using Interpreter.Core;
-
+using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast.Expressions
 {
     public class StringLiteralNode : ExpressionNode
     {
-        public Token StringToken { get; } // The original STRING token
-        public string Value { get; }      // The actual string content (without quotes)
+        public Token StringToken { get; } 
+        public string Value { get; }      
 
         public StringLiteralNode(Token stringToken)
         {
@@ -19,8 +19,11 @@ namespace Interpreter.Core.Ast.Expressions
 
         public override string ToString()
         {
-            // Display the string value with quotes for clarity in AST output
             return $"String(\"{Value}\")";
+        }
+         public override object Evaluate(Interprete interpreter)
+        {
+            return Value;
         }
     }
 }

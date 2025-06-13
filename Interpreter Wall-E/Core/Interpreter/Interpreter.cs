@@ -7,18 +7,18 @@ using System.Linq.Expressions;
 using Interpreter.Core.Interpreter.Helpers;
 namespace Interpreter.Core.Interpreter
 {
-    public class Interpreter
+    public class Interprete
     {
-        private Canvas canvas;
-        private WallEContext wallEContext;
-        private RuntimeEnvironment runtimeEnvironment;
-        private SymbolTable symbolTable;
+        public Canvas canvas;
+        public WallEContext wallEContext;
+        public RuntimeEnvironment runtimeEnvironment;
+        public SymbolTable symbolTable;
 
         //collecting errors:
         public List<string> OutputLog { get; }
         public List<string> ErrorLog { get; }
 
-        public Interpreter(Canvas canvas, WallEContext wallEContext, SymbolTable symbolTable, RuntimeEnvironment runtimeEnv)
+        public Interprete(Canvas canvas, WallEContext wallEContext, SymbolTable symbolTable, RuntimeEnvironment runtimeEnv)
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.wallEContext = wallEContext ?? throw new ArgumentNullException(nameof(wallEContext));
@@ -58,7 +58,7 @@ namespace Interpreter.Core.Interpreter
                     ErrorLog.Add("Interpreter: Too many runtime errors. Halting execution.");
                     break;
                 }
-
+                //main method
                 StatementNode currentStatement = programNode.Statements[runtimeEnvironment.ProgramCounter];
 
                 try
@@ -124,12 +124,12 @@ namespace Interpreter.Core.Interpreter
                 case AssignmentNode assignmentNode:
                     VisitAssignmentNode(assignmentNode);
                     break;
-                // case LabelNode labelNode:
-                //     VisitLabelNode(labelNode); // Labels are mostly for scanning, execution is a no-op
-                //     break;
-                // case GoToNode goToNode:
-                //     VisitGoToNode(goToNode);
-                //    break;
+                case LabelNode labelNode:
+                    VisitLabelNode(labelNode);
+                    break;
+                case GoToNode goToNode:
+                    VisitGoToNode(goToNode);
+                    break;
 
                 default: throw new RuntimeException($"Unsupported statement type: {statement.GetType().Name}");
             }
@@ -150,28 +150,58 @@ namespace Interpreter.Core.Interpreter
                     throw new RuntimeException("Coordinate X or Y out of the bounds of the canvas");
                 }
 
-                wallEContext.CurrentX = (int)Math.Round(xVal); 
+                wallEContext.CurrentX = (int)Math.Round(xVal);
                 wallEContext.CurrentY = (int)Math.Round(yVal);
                 OutputLog.Add($"Executing: Spawn({node.XCoordinate}, {node.YCoordinate})");
             }
-            catch(RuntimeException ex)
-            { 
+            catch (RuntimeException ex)
+            {
                 throw new RuntimeException($"Error in Spawn statement: {ex.Message}");
             }
         }
 
         private void VisitColorNode(ColorNode node)
         {
-            OutputLog.Add($"Executing: Color({node.ColorExpression})");
-            // TODO: Evaluate node.ColorExpression (should result in a string or PixelColor)
-            // TODO: Update wallEContext.CurrentBrushColor
+            try
+            {
+                object colorValue = EvaluateExpression(node.ColorExpression);
+                if (!(colorValue is string colorName))
+                {
+                    throw new RuntimeException($"Color command expects a string argument (color name). Got {colorValue?.GetType().Name}.");
+                }
+                wallEContext.CurrentBrushColor = new PixelColor(colorName);
+                OutputLog.Add($"Wall-E brush color set to: {wallEContext.CurrentBrushColor.Name}.");
+            }
+            catch (RuntimeException rex)
+            {
+                throw new RuntimeException($"Error in Color statement: {rex.Message}");
+            }
         }
 
         private void VisitSizeNode(SizeNode node)
         {
-            OutputLog.Add($"Executing: Size({node.SizeExpression})");
-            // TODO: Evaluate node.SizeExpression (should result in an int)
-            // TODO: Update wallEContext.CurrentBrushSize
+            try
+            {
+                object sizeValue = EvaluateExpression(node.SizeExpression);
+
+                if (!(sizeValue is double sizeDouble))
+                {
+                    throw new RuntimeException($"Size command expects a numeric argument. Got {sizeValue?.GetType().Name}.");
+                }
+                int newSize = (int)Math.Round(sizeDouble);
+
+                // Add validation for brush size as per spec (e.g., must be positive)
+                if (newSize < 1)
+                {
+                    throw new RuntimeException($"Brush size must be a positive integer. Got {newSize}.");
+                }
+                wallEContext.CurrentBrushSize = newSize;
+                OutputLog.Add($"Wall-E brush size set to: {wallEContext.CurrentBrushSize}.");
+            }
+            catch (RuntimeException rex)
+            {
+                throw new RuntimeException($"Error in Size statement: {rex.Message}");
+            }
         }
 
         private void VisitDrawLineNode(DrawLineNode node)
@@ -186,24 +216,50 @@ namespace Interpreter.Core.Interpreter
 
         private void VisitAssignmentNode(AssignmentNode node)
         {
-            OutputLog.Add($"Executing: {node.Identifier.Value} <- {node.ValueExpression}");
-            // TODO: Evaluate node.ValueExpression
-            // TODO: Store result in symbolTable.Define(node.Identifier.Value, result)
+            try
+            {
+                string variableName = node.Identifier.Value;
+                object valueToAssign = EvaluateExpression(node.ValueExpression);
+                symbolTable.Assign(variableName, valueToAssign);
+                OutputLog.Add($"Assigned to '{variableName}': {valueToAssign ?? "null"}.");
+            }
+            catch (RuntimeException rex)
+            {
+                throw new RuntimeException($"Error in Assignment statement: {rex.Message}");
+            }
         }
 
-        // private void VisitLabelNode(LabelNode node)
-        // {
-        //     // Execution of a label statement is a no-op.
-        //     // Labels are processed during the ScanForLabels phase.
-        //     OutputLog.Add($"Encountered Label: {node.LabelToken.Value}");
-        // }
+        private void VisitLabelNode(LabelNode node)
+        {
+            // Labels are processed during the ScanForLabels phase.
+            OutputLog.Add($"Encountered Label: {node.IdentifierToken.Value}");
+        }
 
-        // private void VisitGoToNode(GoToNode node)
-        // {
-        //     OutputLog.Add($"Executing: GoTo [{node.TargetLabel.Value}] ({node.Condition})");
-        //     // TODO: Evaluate node.Condition (should result in a boolean or number treated as boolean)
-        //     // TODO: If condition is true, call runtimeEnvironment.RequestGoTo(node.TargetLabel.Value)
-        // }
+        private void VisitGoToNode(GoToNode node)
+        {
+            try
+            {
+                string targetLabelName = node.LabelToken.Value;
+                object condition = EvaluateExpression(node.Condition);
+                bool conditionResult = BinaryOperations.ConvertToBooleanStatic(condition);
+
+                OutputLog.Add($"Executing GoTo [{targetLabelName}] with condition ({node.Condition}) evaluated to {conditionResult}.");
+
+                if (conditionResult)
+                {
+                    runtimeEnvironment.RequestGoTo(targetLabelName);
+                    OutputLog.Add($"GoTo [{targetLabelName}] requested.");
+                }
+                else
+                {
+                    OutputLog.Add($"GoTo [{targetLabelName}] condition false. No jump.");
+                }
+            }
+            catch (RuntimeException rex)
+            {
+                throw new RuntimeException($"Error in GoTo statement targeting '{node.LabelToken.Value}': {rex.Message}");
+            }
+        }
 
         ////////////\\\\\\\\\\\\\\Expression Evaluation\\\\\\\\\\\\/////////////////
         private Object EvaluateExpression(ExpressionNode expression)
@@ -227,7 +283,7 @@ namespace Interpreter.Core.Interpreter
                     return VisitBinaryOpNode(binaryOpNode);
 
                 case FunctionCallNode functionCallNode:
-                //  return VisitFunctionCallNode(functionCallNode);
+                  return VisitFunctionCallNode(functionCallNode);
                 default:
                     throw new RuntimeException($"Unsupported expression type: {expression.GetType().Name}");
             }

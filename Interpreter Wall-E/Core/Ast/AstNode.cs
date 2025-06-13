@@ -1,4 +1,5 @@
 using Interpreter.Core;
+using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast
 {
         public abstract class AstNode

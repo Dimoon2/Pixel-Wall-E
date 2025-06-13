@@ -1,5 +1,5 @@
 using Interpreter.Core;
-
+using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast.Expressions
 {
     public class NumberLiteralNode : ExpressionNode
@@ -21,6 +21,10 @@ namespace Interpreter.Core.Ast.Expressions
         public override string ToString()
         {
             return $"Number({Value})";
+        }
+        public override object Evaluate(Interprete interpreter)
+        {
+            return Value;
         }
     }
 }

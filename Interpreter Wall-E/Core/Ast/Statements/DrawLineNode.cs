@@ -1,5 +1,5 @@
 using Interpreter.Core.Ast.Expressions;
-
+using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast.Statements
 {
     class DrawLineNode : StatementNode
@@ -18,6 +18,11 @@ namespace Interpreter.Core.Ast.Statements
         public override string ToString()
         {
             return $"DrawLine(DirX: {ExpresDirX}, DirY: {ExpresDirY}, Distance: {ExpresDistance})";
+        }
+
+        public override void Execute(Interprete interpreter)
+        {
+            throw new NotImplementedException();
         }
     }
 }

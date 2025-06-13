@@ -1,5 +1,5 @@
 using Interpreter.Core.Ast.Expressions;
-
+using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast.Statements
 {
     class DrawCircleNode : StatementNode
@@ -18,6 +18,11 @@ namespace Interpreter.Core.Ast.Statements
         public override string ToString()
         {
             return $"DrawCircle(DirX: {ExpresDirX}, DirY: {ExpresDirY}, Radius: {Radius})";
+        }
+
+        public override void Execute(Interprete interpreter)
+        {
+            throw new NotImplementedException();
         }
     }
 }

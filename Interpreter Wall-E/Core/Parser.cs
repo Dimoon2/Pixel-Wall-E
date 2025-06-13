@@ -453,16 +453,28 @@ namespace Interpreter.Core
 
         private ExpressionNode ParsePowerExpression()
         {
-            ExpressionNode left = ParsePrimaryExpression();
+            ExpressionNode left = ParseUnaryOpExpression();
             while (currentTokenType == TokenType.Power)
             {
                 Token operatorToken = Match(TokenType.Power);
-                ExpressionNode right = ParsePrimaryExpression();
+                ExpressionNode right = ParseUnaryOpExpression();
                 if (right == null) return null!;
                 left = new BinaryOpNode(left, operatorToken, right);
             }
             return left;
         }
+        private ExpressionNode ParseUnaryOpExpression()
+        {
+            if (currentToken.Type == TokenType.Minus)
+            {
+                Token minusToken = Match(TokenType.Minus);
+                ExpressionNode node = ParsePrimaryExpression();
+                if (node == null) return null!;
+                return new UnaryOpNode(minusToken, node);
+            }
+            return ParsePrimaryExpression();
+        }
+
         public ExpressionNode ParsePrimaryExpression()
         {
             Token currentTokenSnapshot = currentToken;
@@ -471,6 +483,7 @@ namespace Interpreter.Core
                 case TokenType.Number: return ParseNumberLiteral();
 
                 case TokenType.String: return ParseStringLiteral();
+
 
                 case TokenType.Identifier: return ParseVariable();
 

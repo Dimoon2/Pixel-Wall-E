@@ -1,5 +1,5 @@
 using Interpreter.Core.Ast.Expressions;
-
+using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast.Statements
 {
     class FillNode : StatementNode
@@ -9,6 +9,11 @@ namespace Interpreter.Core.Ast.Statements
         public override string ToString()
         {
             return $"Fill()";
+        }
+
+        public override void Execute(Interprete interpreter)
+        {
+            throw new NotImplementedException();
         }
     }
 }

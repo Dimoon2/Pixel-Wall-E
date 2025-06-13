@@ -1,5 +1,5 @@
 using Interpreter.Core.Ast.Expressions;
-
+using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast.Statements
 {
     class DrawRectangleNode : StatementNode
@@ -23,6 +23,11 @@ namespace Interpreter.Core.Ast.Statements
         public override string ToString()
         {
             return $"DrawRectangleNode(DirX: {ExpresDirX}, DirY: {ExpresDirY}, Distance: {ExpresDistance}, Wigth: {Width}, Height: {Height})";
+        }
+
+        public override void Execute(Interprete interpreter)
+        {
+            throw new NotImplementedException();
         }
     }
 }

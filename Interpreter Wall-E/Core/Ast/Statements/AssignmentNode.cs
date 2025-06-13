@@ -1,5 +1,6 @@
 using System.Data.Common;
 using Interpreter.Core.Ast.Expressions;
+using Interpreter.Core.Interpreter;
 
 namespace Interpreter.Core.Ast.Statements
 {
@@ -23,6 +24,21 @@ namespace Interpreter.Core.Ast.Statements
         public override string ToString()
         {
             return $"Assign(Var: {Name}, Value: ({ValueExpression}))";
+        }
+
+        public override void Execute(Interprete interpreter)
+        {
+             try
+            {
+                string variableName = Identifier.Value;
+                object valueToAssign = ValueExpression.Evaluate(interpreter);
+                interpreter.symbolTable.Assign(variableName, valueToAssign);
+                interpreter.OutputLog.Add($"Assigned to '{variableName}': {valueToAssign ?? "null"}.");
+            }
+            catch (RuntimeException rex)
+            {
+                throw new RuntimeException($"Error in Assignment statement: {rex.Message}");
+            }
         }
     }
 }

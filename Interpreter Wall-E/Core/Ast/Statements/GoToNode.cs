@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Interpreter.Core.Ast.Expressions;
-
+using Interpreter.Core.Interpreter;
+using Interpreter.Core.Interpreter.Helpers;
 namespace Interpreter.Core.Ast.Statements
 {
     class GoToNode : StatementNode
@@ -26,6 +27,32 @@ namespace Interpreter.Core.Ast.Statements
             //   //  GoTo [label] (condition)
             if (Condition == null) return $"GoTo[{LabelName}]";
             return $"GoTo[{LabelName}] ({Condition})";
+        }
+
+        public override void Execute(Interprete interpreter)
+        {
+            try
+            {
+                string targetLabelName = LabelToken.Value;
+                object condition =Condition.Evaluate(interpreter);
+                bool conditionResult = BinaryOperations.ConvertToBooleanStatic(condition);
+
+                interpreter.OutputLog.Add($"Executing GoTo [{targetLabelName}] with condition ({Condition}) evaluated to {conditionResult}.");
+
+                if (conditionResult)
+                {
+                    interpreter.runtimeEnvironment.RequestGoTo(targetLabelName);
+                    interpreter.OutputLog.Add($"GoTo [{targetLabelName}] requested.");
+                }
+                else
+                {
+                    interpreter.OutputLog.Add($"GoTo [{targetLabelName}] condition false. No jump.");
+                }
+            }
+            catch (RuntimeException rex)
+            {
+                throw new RuntimeException($"Error in GoTo statement targeting '{LabelToken.Value}': {rex.Message}");
+            }
         }
     }
 }

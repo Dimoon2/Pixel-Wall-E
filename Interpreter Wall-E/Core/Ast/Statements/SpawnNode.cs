@@ -1,5 +1,6 @@
-using Interpreter.Core.Ast.Expressions; 
-
+using Interpreter.Core.Ast.Expressions;
+using Interpreter.Core.Interpreter;
+using System;
 namespace Interpreter.Core.Ast.Statements
 {
     public class SpawnNode : StatementNode
@@ -17,6 +18,32 @@ namespace Interpreter.Core.Ast.Statements
         public override string ToString()
         {
             return $"Spawn(X: {XCoordinate}, Y: {YCoordinate})";
+        }
+
+        public override void Execute(Interprete interpreter)
+        {
+            try
+            {
+                object X = XCoordinate.Evaluate(interpreter);
+                object Y = YCoordinate.Evaluate(interpreter);
+                if (!(X is int xVal))
+                    throw new RuntimeException($"Spawn X coordinate must be a number. Got {X?.GetType().Name}.");
+                if (!(Y is int yVal))
+                    throw new RuntimeException($"Spawn Y coordinate must be a number. Got {Y?.GetType().Name}.");
+
+                if (xVal > interpreter.canvas.Width || yVal > interpreter.canvas.Width)
+                {
+                    throw new RuntimeException("Coordinate X or Y out of the bounds of the canvas");
+                }
+
+                interpreter.wallEContext.CurrentX = xVal;
+                interpreter.wallEContext.CurrentY = yVal;
+                interpreter.OutputLog.Add($"Executing: Spawn({XCoordinate}, {YCoordinate})");
+            }
+            catch (RuntimeException ex)
+            {
+                throw new RuntimeException($"Error in Spawn statement: {ex.Message}");
+            }
         }
     }
 }

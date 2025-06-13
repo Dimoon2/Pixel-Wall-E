@@ -1,5 +1,6 @@
 using Interpreter.Core.Ast.Statements;
-
+using Interpreter.Core.Interpreter;
+using Interpreter.Core.Interpreter.Helpers;
 namespace Interpreter.Core.Ast.Expressions
 {
     class BinaryOpNode : ExpressionNode
@@ -21,6 +22,43 @@ namespace Interpreter.Core.Ast.Expressions
         public override string ToString()
         {
             return $"BinaryOp({Left} {Operator.Value} {Right})";
+        }
+
+        public override object Evaluate(Interprete interpreter)
+        {
+            object leftValue = Left.Evaluate(interpreter);
+
+            // Handle && and || here
+            if (Operator.Type == TokenType.And)
+            {
+                if (!BinaryOperations.ConvertToBooleanStatic(leftValue)) return false;
+                object rightValueAnd = Right.Evaluate(interpreter);
+                return BinaryOperations.ConvertToBooleanStatic(rightValueAnd);
+            }
+            if (Operator.Type == TokenType.Or)
+            {
+                if (BinaryOperations.ConvertToBooleanStatic(leftValue)) return true;
+                object rightValueOr = Right.Evaluate(interpreter);
+                return BinaryOperations.ConvertToBooleanStatic(rightValueOr);
+            }
+
+            // For other operators, evaluate right operand and use the handler
+            object rightValue = Right.Evaluate(interpreter);
+
+            if (BinaryOperations.TryGetHandler(Operator.Type, out BinaryOperationHandler handler))
+            {
+                try
+                {
+                    return handler(leftValue, rightValue);
+                }
+                catch (RuntimeException) { throw; } // Re-throw exceptions
+                catch (Exception) // Catch other unexpected errors from handlers
+                {
+                    throw; // new RuntimeException($"Error during binary operation '{node.Operator.Value}': {ex.Message}", ex);
+                }
+            }
+
+            throw new RuntimeException($"Unsupported binary operator: {Operator.Type}");
         }
     }
 }
