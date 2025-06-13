@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wall-E Pixel", "Wall-E Pixel.csproj", "{B3DE49A8-EC50-D585-B87E-9AC67FAF58E7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B3DE49A8-EC50-D585-B87E-9AC67FAF58E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3DE49A8-EC50-D585-B87E-9AC67FAF58E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3DE49A8-EC50-D585-B87E-9AC67FAF58E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3DE49A8-EC50-D585-B87E-9AC67FAF58E7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {32D9BE44-3610-4612-A806-E57563ABE76E}
+	EndGlobalSection
+EndGlobal
