@@ -1,0 +1,14 @@
+<!-- Controls/PixelCanvasControl.axaml -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:PixelWallEApp.Models.Canvas"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="300"
+             x:Class="PixelWallEApp.Models.Canvas.CanvasStateControl"
+             ClipToBounds="True"> <!-- Ensure drawing stays within bounds -->
+    <Design.DataContext>
+      <!-- Provide dummy data for previewer -->
+      <models:CanvasState Width="10" Height="10"/>
+    </Design.DataContext>
+</UserControl>

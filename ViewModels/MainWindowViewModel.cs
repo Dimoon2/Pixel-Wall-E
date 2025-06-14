@@ -2,26 +2,26 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PixelWallEApp.Models;
-using PixelWallEApp.Models.Commands;
-using PixelWallEApp.Views.Controls; // For PixelCanvas reference (needed for redraw)
+using PixelWallEApp.Models.Canvas;
+using PixelWallEApp.Views; // For PixelCanvas reference (needed for redraw)
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks; // For async relay command
-using AvaloniaEdit.Document; // Necesario para TextDocument
+using AvaloniaEdit.Document;
+using Interpreter.Core; // Necesario para TextDocument
+using Interpreter.Core.Interpreter;
+using Interpreter.Core.Ast.Statements;
 
 namespace PixelWallEApp.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string _initialCodeText = @"// Enter Wall-E code here
-// Example:
-Spawn(0, 0)
-DrawLine(1, 1, 5) // Draw diagonal down-right
-// Color(Red) // Not implemented yet
-// Size(3) // Not implemented yet
-// DrawLine(1, 0, 10) // Draw right
-";
+        private string _initialCodeText = @"
+Spawn(4, 4)
+Color(green)
+n<- (4+3)**2/4
+DrawLine(1, 1, n)";
         [ObservableProperty]
         private TextDocument _theDocument;
 
@@ -36,11 +36,18 @@ DrawLine(1, 1, 5) // Draw diagonal down-right
 
         [ObservableProperty]
         private WallEState _wallEState;
+        public bool IsWallESpawned => WallEX >= 0 && WallEY >= 0;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsWallESpawned))]
+        private int _wallEX = -1;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsWallESpawned))]
+        private int _wallEY = -1;
 
         // Reference to the actual canvas control to trigger redraws
         // This breaks pure MVVM slightly but is pragmatic for custom drawing controls.
         // An alternative is using messaging or events.
-        public PixelCanvas? CanvasControl { get; set; }
 
 
         public MainWindowViewModel()
@@ -49,8 +56,14 @@ DrawLine(1, 1, 5) // Draw diagonal down-right
             // Initialize CanvasState with the default input size
             _canvasState = new CanvasState(_canvasSizeInput);
             // Set the static reference in App for the canvas rendering
-             _theDocument = new TextDocument(_initialCodeText); // <--- CAMBIO: Inicializa el documento
-            App.MainWindowViewModel = this; // Make VM accessible
+            _theDocument = new TextDocument(_initialCodeText); // <--- CAMBIO: Inicializa el documento
+            WallELocation();
+
+        }
+        private void WallELocation()
+        {
+            WallEX = _wallEState.X;
+            WallEY = _wallEState.Y;
         }
 
         [RelayCommand]
@@ -58,74 +71,66 @@ DrawLine(1, 1, 5) // Draw diagonal down-right
         {
             LogOutput($"Resizing canvas to {CanvasSizeInput}x{CanvasSizeInput}...");
             CanvasState.Resize(CanvasSizeInput);
-            // Explicitly trigger redraw on the canvas control
-            CanvasControl?.InvalidateVisual();
             LogOutput($"Canvas resized. Cleared to white.");
         }
 
         [RelayCommand]
-        private async Task ExecuteCode() // Make async if parsing/execution could be long
+        private async Task ExecuteCode()
         {
-            if (CanvasControl == null)
-            {
-                LogOutput("Error: Canvas control not available.");
-                return;
-            }
 
             string codeToExecute = TheDocument.Text;
+            LogOutput($"Attempting to parse and execute:\n{codeToExecute.Substring(0, Math.Min(codeToExecute.Length, 100))}..."); // Loguea el inicio del código
 
-            LogOutput("Parsing code...");
-            // List<ICommandDefinition>? commands = null;
-            try
+            // Asumiendo que tu Lexer, Parser e Interprete pueden lanzar excepciones en caso de error
+            // o que llenan una lista de errores que compruebas.
+            Lexer lexer = new Lexer(codeToExecute);
+            List<Token> tokens = lexer.Tokenize();
+            // Aquí podrías loguear el número de tokens o algunos de ellos para depuración.
+
+            Parser parser = new Parser(tokens);
+            // ProgramNode source = parser.ParseProgram(); // ParseProgram DEBERÍA lanzar error o devolver null/lista de errores
+
+            // Ejemplo de manejo de errores del parser si devuelve una lista de errores
+            List<string> parsingErrors = parser.errors; // Asumiendo que `errors` es una propiedad pública
+            if (parsingErrors != null && parsingErrors.Count > 0)
             {
-                // commands = CommandParser.Parse(CodeText);
-                // LogOutput($"Parsing successful. {commands.Count} command(s) found.");
-            }
-            catch (FormatException ex)
-            {
-                LogOutput($"Parsing Error: {ex.Message}");
+                LogOutput("Parsing failed with errors:");
+                foreach (var error in parsingErrors)
+                {
+                    LogOutput($" - {error}");
+                }
                 return;
             }
-            catch (Exception ex)
-            {
-                LogOutput($"Unexpected Parsing Error: {ex.Message}");
-                return;
-            }
+            ProgramNode source = parser.ParseProgram(); // Si no hay errores, parsea
 
-
-            LogOutput("Executing code...");
-            string? executionResult = null;
-            try
+            if (source == null && (parsingErrors == null || parsingErrors.Count == 0))
             {
-                // Run the interpreter - it modifies WallEState and CanvasState directly
-                // executionResult = Interpreter.Run(commands, WallEState, CanvasState);
-            }
-            catch (Exception ex)
-            {
-                LogOutput($"Unexpected Execution Error: {ex.Message}");
-                // Optionally reset state or leave canvas partially drawn?
-                // Let's leave it partially drawn for debugging.
-                CanvasControl?.InvalidateVisual(); // Redraw partially modified state
+                LogOutput("Parsing resulted in null program without explicit errors. Check parser logic.");
                 return;
             }
 
 
-            if (executionResult != null)
-            {
-                LogOutput($"Execution Failed: {executionResult}");
-                // Redraw canvas to show state *before* the failed command (if needed, depends on Interpreter logic)
-                // Currently, Interpreter stops, so the state is as it was *after* the last successful command.
-                CanvasControl?.InvalidateVisual();
-            }
-            else
-            {
-                LogOutput("Execution completed successfully.");
-                // Trigger redraw on the UI thread after successful execution
-                await Dispatcher.UIThread.InvokeAsync(() => CanvasControl?.InvalidateVisual());
+            LogOutput("Parsing successful. Executing program...");
+            Interprete interpreter = new Interprete(_canvasState, _wallEState); // Pasa las dependencias
+                                                                                // Aquí, tu método ExecuteProgram también podría lanzar excepciones o tener su propio manejo de errores.
+            interpreter.ExecuteProgram(source);
 
+            List<string> Errors = interpreter.ErrorLog; // Asumiendo que `errors` es una propiedad pública
+            if (Errors != null && Errors.Count > 0)
+            {
+                LogOutput("Parsing failed with errors:");
+                foreach (var error in Errors)
+                {
+                    LogOutput($" - {error}");
+                }
+                return;
             }
+            // Si ExecuteProgram modifica una lista de errores en el intérprete:
+            CanvasState.NotifyChanged(); // Force UI update
+            WallELocation();      // Update Wall-E pos in VM if displayed) { /* Loguear errores */ }
+
+            LogOutput("Execution finished (or attempted).");
         }
-
         private void LogOutput(string message)
         {
             // Prepend new messages to the log

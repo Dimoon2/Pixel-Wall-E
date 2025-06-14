@@ -1,16 +1,15 @@
 <Window
-    x:Class="PixelWallEApp.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:PixelWallEApp.Views.Controls"
-    xmlns:local="using:PixelWallEApp.Views"
-    xmlns:vm="using:PixelWallEApp.ViewModels"
-    Title="Pixel Wall-E"
-    Width="1000"
-    Height="700"
-    x:DataType="vm:MainWindowViewModel"
-    Icon="/Assets/avalonia-logo.ico">
+        xmlns:vm="using:PixelWallEApp.ViewModels"
+        xmlns:local="using:PixelWallEApp.Views"
+        xmlns:controls="using:PixelWallEApp.Models.Canvas"
+        x:Class="PixelWallEApp.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Pixel Wall-E"
+        Width="1000" Height="700">
 
      <!-- Design.DataContext is ONLY for the previewer, x:DataType is for compilation  -->
     <Design.DataContext>
@@ -92,8 +91,12 @@
                  <!-- Canvas Area -->
                <Border  BorderBrush="Gray" BorderThickness="1" Margin="10">
                  <!-- Name the canvas so the ViewModel can get a reference -->
-                  <controls:PixelCanvas x:Name="PixelCanvasDisplay"
-                                   CanvasState="{Binding CanvasState}" />
+                  <controls:CanvasStateControl CanvasData="{Binding CanvasState}"
+                                         AxisThickness="25" 
+                                         AxisBackground="LightSteelBlue" 
+                                         AxisForeground="Black"
+                                         WallEX="{Binding WallEX}"
+                                         WallEY="{Binding WallEY}" />
         </Border>
            </Grid>
         </Grid>

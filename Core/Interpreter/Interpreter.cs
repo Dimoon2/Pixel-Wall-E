@@ -6,6 +6,8 @@ using Interpreter.Core.Ast.Expressions;
 using System.Linq.Expressions;
 using Interpreter.Core.Interpreter.Helpers;
 using PixelWallEApp.Models;
+using PixelWallEApp.Models.Canvas;
+
 namespace Interpreter.Core.Interpreter
 {
     public class Interprete
@@ -20,12 +22,13 @@ namespace Interpreter.Core.Interpreter
         public List<string> OutputLog { get; }
         public List<string> ErrorLog { get; }
 
-        public Interprete(CanvasState canvas, WallEState wallEContext, SymbolTable symbolTable, RuntimeEnvironment runtimeEnv)
+        public Interprete(CanvasState canvas, WallEState wallEContext)
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.wallEContext = wallEContext ?? throw new ArgumentNullException(nameof(wallEContext));
-            this.symbolTable = symbolTable ?? throw new ArgumentNullException(nameof(symbolTable));
-            this.runtimeEnvironment = runtimeEnv ?? throw new ArgumentNullException(nameof(runtimeEnv));
+            this.symbolTable = new SymbolTable();
+            this.runtimeEnvironment = new RuntimeEnvironment();
+            symbolTable = new SymbolTable();
 
             OutputLog = new List<string>();
             ErrorLog = new List<string>();

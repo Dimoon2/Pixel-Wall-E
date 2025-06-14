@@ -28,7 +28,8 @@ namespace Interpreter.Core.Ast.Statements
                 {
                     throw new RuntimeException($"Color command expects a string argument (color name). Got {colorValue?.GetType().Name}.");
                 }
-                Color color = FunctionHandlers.GetColor(colorName);
+                string _color = colorName.ToLower();
+                Color color = FunctionHandlers.GetColor(_color);
                 interpreter.wallEContext.BrushColor = color;
                 interpreter.OutputLog.Add($"Wall-E brush color set to: {interpreter.wallEContext.BrushColor}.");
             }

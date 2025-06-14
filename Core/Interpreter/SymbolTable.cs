@@ -6,13 +6,11 @@ namespace Interpreter.Core.Interpreter
     public class SymbolTable
     {
         private Dictionary<string, object> symbols;
-        private SymbolTable parent;
+        // private SymbolTable parent;
 
-        public SymbolTable() : this(null!) { }
-        public SymbolTable(SymbolTable parentScope)
+        public SymbolTable()
         {
             symbols = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase); // Case-insensitive for variable names
-            parent = parentScope;
         }
 
         public bool Define(string Name, object value)
@@ -28,10 +26,6 @@ namespace Interpreter.Core.Interpreter
                 symbols[Name] = value;
                 return true;
             }
-            if (parent != null)
-            {
-                return parent.Assign(Name, value);
-            }
             // Let's make Assign also define if not found in any scope for simplicity matching 'n <- expr'
             symbols[Name] = value; // Define it in the current scope
             return true;
@@ -44,10 +38,6 @@ namespace Interpreter.Core.Interpreter
                 return value;
             }
 
-            if (parent != null)
-            {
-                return parent.Get(name); // Check in parent scope
-            }
             throw new RuntimeException($"Runtime Error: Variable '{name}' is not defined.");
         }
         public bool IsDefined(string name)
@@ -55,10 +45,6 @@ namespace Interpreter.Core.Interpreter
             if (symbols.ContainsKey(name))
             {
                 return true;
-            }
-            if (parent != null)
-            {
-                return parent.IsDefined(name);
             }
             return false;
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Interpreter.Core.Ast.Expressions;
 using Interpreter.Core.Interpreter;
 namespace Interpreter.Core.Ast.Statements
@@ -22,6 +23,8 @@ namespace Interpreter.Core.Ast.Statements
 
         public override void Execute(Interprete interpreter)
         {
+            Debug.WriteLine("executing spawn");
+
             try
             {
                 object X = XCoordinate.Evaluate(interpreter);
@@ -38,6 +41,8 @@ namespace Interpreter.Core.Ast.Statements
 
                 interpreter.wallEContext.X = xVal;
                 interpreter.wallEContext.Y = yVal;
+                interpreter.wallEContext.IsSpawned = true;
+                Debug.WriteLine($"WAlle spawned at {xVal} , {yVal}");
                 interpreter.OutputLog.Add($"Executing: Spawn({XCoordinate}, {YCoordinate})");
             }
             catch (RuntimeException ex)

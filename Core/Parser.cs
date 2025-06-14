@@ -12,7 +12,7 @@ namespace Interpreter.Core
     {
         private readonly List<Token> tokens;
         private int currentTokenIndex;
-        private List<string> errors;
+        public List<string> errors;
 
         public Parser(List<Token> token)
         {
@@ -43,7 +43,7 @@ namespace Interpreter.Core
             }
             else
             {
-                Console.Error.WriteLine($"!!!! DEBUG: Advance: AT LAST TOKEN (EOF or other). Not advancing. Current: {currentToken}, Index: {currentTokenIndex}");
+                // Console.Error.WriteLine($"!!!! DEBUG: Advance: AT LAST TOKEN (EOF or other). Not advancing. Current: {currentToken}, Index: {currentTokenIndex}");
             }
         }
 
@@ -109,7 +109,7 @@ namespace Interpreter.Core
                     // Safety for skipping newlines if Advance gets stuck (unlikely but for paranoia)
                     if (currentTokenType == TokenType.Newline)// && loopSafetyCounter % 10 == 0 && loopSafetyCounter > tokens.Count)
                     {
-                        Console.Error.WriteLine($"!!!! DEBUG: Potentially stuck skipping Newlines. Token: {currentToken}");
+                        // Console.Error.WriteLine($"!!!! DEBUG: Potentially stuck skipping Newlines. Token: {currentToken}");
                     }
                 }
                 // 2. If, after skipping newlines, we are at EOF, then break the main loop.
@@ -239,7 +239,7 @@ namespace Interpreter.Core
             ExpressionNode yCoord = ParseExpression();
             if (yCoord == null)
             {
-                Console.Error.WriteLine($"!!!! DEBUG: ParseSpawnStatement: yCoord parsing failed. Token: {currentToken}");
+                // Console.Error.WriteLine($"!!!! DEBUG: ParseSpawnStatement: yCoord parsing failed. Token: {currentToken}");
                 return null!;
             }
 

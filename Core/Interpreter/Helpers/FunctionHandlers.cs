@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using PixelWallEApp.Models;
+using PixelWallEApp.Models.Canvas;
+
 using Tmds.DBus.Protocol;
 
 namespace Interpreter.Core.Interpreter.Helpers
@@ -26,8 +28,8 @@ namespace Interpreter.Core.Interpreter.Helpers
         };
         public static Color GetColor(string s)
         {
-            if(!colors.TryGetValue(s, out Color value)) 
-               throw new RuntimeException("Expected a string representing a color!");
+            if (!colors.TryGetValue(s, out Color value))
+                throw new RuntimeException("Expected a string representing a color!");
             return value;
 
         }
@@ -84,7 +86,7 @@ namespace Interpreter.Core.Interpreter.Helpers
             string color = colorNameArg.ToLower();
             Color actualColor = wallE.BrushColor;
             Color ExpectedColor = GetColor(color);
-                return ExpectedColor == actualColor ? 1 : 0;
+            return ExpectedColor == actualColor ? 1 : 0;
         }
 
         public static object HandleIsBrushSize(List<object> evaluatedArgs, WallEState wallE, CanvasState canvas, SymbolTable symbolTable)
@@ -109,7 +111,7 @@ namespace Interpreter.Core.Interpreter.Helpers
             int x = wallE.X;
             int y = wallE.Y;
             Color color = GetColor(colorNameArg);
-            
+
             int wishx = x + xArg;
             int wishy = y + yArg;
 

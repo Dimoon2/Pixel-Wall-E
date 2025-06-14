@@ -1,37 +1,37 @@
+// App.axaml.cs
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using PixelWallEApp.ViewModels;
+using PixelWallEApp.ViewModels; // Your namespaces
 using PixelWallEApp.Views;
 
-namespace PixelWallEApp
+namespace PixelWallEApp;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    public override void Initialize()
     {
-         // Static reference to the ViewModel for easy access (e.g., from Canvas)
-         // Consider dependency injection for larger apps.
-         public static MainWindowViewModel? MainWindowViewModel { get; set; }
+        AvaloniaXamlLoader.Load(this);
+    }
 
-        public override void Initialize()
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            AvaloniaXamlLoader.Load(this);
-        }
-
-        public override void OnFrameworkInitializationCompleted()
-        {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.MainWindow = new MainWindow
             {
-                 // Create the ViewModel first
-                 MainWindowViewModel = new MainWindowViewModel();
-
-                 // Then create the Window and assign the ViewModel to its DataContext
-                 desktop.MainWindow = new MainWindow
-                 {
-                     DataContext = MainWindowViewModel,
-                 };
-            }
-
-            base.OnFrameworkInitializationCompleted();
+                // Create and assign the ViewModel instance here
+                DataContext = new MainWindowViewModel(),
+            };
         }
+        // else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
+        // {
+        //    singleViewPlatform.MainView = new MainView // Adjust for single view platforms if needed
+        //    {
+        //        DataContext = new MainViewModel(),
+        //    };
+        // }
+
+        base.OnFrameworkInitializationCompleted();
     }
 }
