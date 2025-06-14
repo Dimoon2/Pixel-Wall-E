@@ -81,7 +81,9 @@ namespace Interpreter.Core.Ast.Statements
                             // Check bounds before drawing
                             if (pixelX >= 0 && pixelX < interpreter.canvas.Size && pixelY >= 0 && pixelY < Size)
                             {
-                                interpreter.canvas.SetPixel(pixelX, pixelY, interpreter.wallEContext.BrushColor);
+                                interpreter.canvas.SetPixel(pixelX, pixelY, interpreter.wallEContext.BrushColor); 
+
+                                
                             }
                         }
                     }
