@@ -47,12 +47,20 @@ namespace Interpreter.Core.Interpreter
 
             //scanning for labels
             try
-            { runtimeEnvironment.ScanLabels(programNode); }
+            {
+                runtimeEnvironment.ScanLabels(programNode);
+                StatementNode firstStatement = programNode.Statements[0];
+                if (firstStatement is not SpawnNode)
+                {
+                    throw new RuntimeException("Spawn must be the fist instruction in wallE language");
+                }
+            }
             catch (RuntimeException run)
             {
                 ErrorLog.Add($"Preprocessing Error: {run.Message}");
                 return;
             }
+
 
             //execution loop:
             runtimeEnvironment.ProgramCounter = 0;

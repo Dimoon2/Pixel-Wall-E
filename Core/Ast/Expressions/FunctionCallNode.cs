@@ -8,7 +8,7 @@ namespace Interpreter.Core.Ast.Expressions
 {
     class FunctionCallNode : ExpressionNode
     {
-        public Token FunctionNameToken { get; } // The IDENTIFIER or KEYWORD_XXX token for the function name
+        public Token FunctionNameToken { get; } 
         public string FunctionName => FunctionNameToken.Value;
         public List<ExpressionNode> Arguments { get; }
 

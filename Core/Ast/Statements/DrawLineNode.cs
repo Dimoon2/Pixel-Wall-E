@@ -30,22 +30,22 @@ namespace Interpreter.Core.Ast.Statements
             int Size = interpreter.canvas.Size;
             if (dirX is int DirX && dirY is int DirY && dist is int Distance)
             {
+                if (!IsValidDir(DirX) || !IsValidDir(DirY))
+                {
+                    throw new RuntimeException($"Runtime Error: Drawline directions must be of 1, -1 or 0.");
+                }
                 if (!interpreter.wallEContext.IsSpawned)
                 {
                     throw new RuntimeException($"Runtime Error: Wall-E position not initialized. Use Spawn(x, y) first.");
-
                 }
 
                 if (interpreter.wallEContext.BrushColor == Colors.Transparent)
                 {
-                    // If transparent, just move Wall-E without drawing
+                    // Moving Wall-E without drawing
                     for (int i = 0; i < Distance; i++)
                     {
                         interpreter.wallEContext.X += DirX;
                         interpreter.wallEContext.Y += DirY;
-                        // Optional: Clamp position if it goes out of bounds during move? Spec doesn't say.
-                        // wallEState.X = Math.Clamp(wallEState.X, 0, canvasState.Size - 1);
-                        // wallEState.Y = Math.Clamp(wallEState.Y, 0, canvasState.Size - 1);
                     }
                     // Final position check (or maybe error if *any* step goes OOB?)
                     if (interpreter.wallEContext.X < 0 || interpreter.wallEContext.X >= Size || interpreter.wallEContext.Y < 0 || interpreter.wallEContext.Y >= Size)
@@ -81,9 +81,7 @@ namespace Interpreter.Core.Ast.Statements
                             // Check bounds before drawing
                             if (pixelX >= 0 && pixelX < interpreter.canvas.Size && pixelY >= 0 && pixelY < Size)
                             {
-                                interpreter.canvas.SetPixel(pixelX, pixelY, interpreter.wallEContext.BrushColor); 
-
-                                
+                                interpreter.canvas.SetPixel(pixelX, pixelY, interpreter.wallEContext.BrushColor);
                             }
                         }
                     }
@@ -109,6 +107,12 @@ namespace Interpreter.Core.Ast.Statements
             {
                 throw new RuntimeException($"Drawline parameters must be integers!");
             }
+        }
+
+        public bool IsValidDir(int dir)
+        {
+            if (dir == 1 || dir == -1 || dir == 0) return true;
+            return false;
         }
     }
 }

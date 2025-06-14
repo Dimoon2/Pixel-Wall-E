@@ -11,8 +11,6 @@ namespace Interpreter.Core.Ast.Expressions
         public ExpressionNode Right { get; }
         public TokenType OperatorType => Operator.Type;
 
-
-
         public BinaryOpNode(ExpressionNode left, Token operatorToken, ExpressionNode right)
         {
             Left = left ?? throw new ArgumentNullException(nameof(left));
