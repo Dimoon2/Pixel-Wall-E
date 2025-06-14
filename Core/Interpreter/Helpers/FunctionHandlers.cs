@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Avalonia.Media;
 using PixelWallEApp.Models;
@@ -39,11 +40,10 @@ namespace Interpreter.Core.Interpreter.Helpers
             { TokenType.KeywordIsBrushColor, HandleIsBrushColor },
             { TokenType.KeywordIsBrushSize, HandleIsBrushSize },
             { TokenType.KeywordIsCanvasColor, HandleIsCanvasColor },
-        //  { TokenType.KeywordGetColorCount, HandleGetColorCount },
+            { TokenType.KeywordGetColorCount, HandleGetColorCount },
             
-            // Add True/False here if they are ever lexed as function keywords
-            { TokenType.KeywordTrue, (args, w, c, st) => { if (args.Count != 0) throw new RuntimeException("true() takes no arguments."); return true; } },
-            { TokenType.KeywordFalse, (args, w, c, st) => { if (args.Count != 0) throw new RuntimeException("false() takes no arguments."); return false; } }
+            // { TokenType.KeywordTrue, (args, w, c, st) => { if (args.Count != 0) throw new RuntimeException("true() takes no arguments."); return true; } },
+            // { TokenType.KeywordFalse, (args, w, c, st) => { if (args.Count != 0) throw new RuntimeException("false() takes no arguments."); return false; } }
         };
 
         public static bool TryGetHandler(TokenType functionKeywordType, out BuiltInFunctionHandler handler)
@@ -121,9 +121,82 @@ namespace Interpreter.Core.Interpreter.Helpers
             return 0;
         }
 
-        // public static object HandleGetColorCount(List<object> evaluatedArgs, WallEState wallE, CanvasState canvas, SymbolTable symbolTable)
-        // {
+        public static object HandleGetColorCount(List<object> evaluatedArgs, WallEState wallE, CanvasState canvas, SymbolTable symbolTable)
+        {
+            if (evaluatedArgs.Count != 5 ||
+                           !(evaluatedArgs[0] is string color) ||
+                           !(evaluatedArgs[1] is int x1) ||
+                           !(evaluatedArgs[2] is int y1) ||
+                           !(evaluatedArgs[3] is int x2) ||
+                           !(evaluatedArgs[2] is int y2))
+            {
+                throw new RuntimeException("GetColorCount() requires five arguments (string color, numeric x1, numeric y1, numeric x2 and numeric y2).");
+            }
 
-        // }
+            if (!canvas.IsValidPosition(x1) || !canvas.IsValidPosition(x2) || !canvas.IsValidPosition(y1) || !canvas.IsValidPosition(y2))
+            {
+                return 0;
+                throw new RuntimeException("Not valid coordinates in GetColorCount arguments.");
+            }
+
+            int counter = 0;
+            Color convertedColor = GetColor($"{color}");
+            if (x1 <= x2 && y1 <= y2)
+            {
+                for (int i = x1; i <= x2; i++)
+                {
+                    for (int j = y1; j <= y2; j++)
+                    {
+                        if (canvas.GetPixel(i, j) == convertedColor)
+                        {
+                            counter++;
+                        }
+                    }
+                }
+                return counter;
+            }
+            if (x1 >= x2 && y1 >= y2)
+            {
+                for (int i = x2; i <= x1; i++)
+                {
+                    for (int j = y2; j <= y1; j++)
+                    {
+                        if (canvas.GetPixel(i, j) == convertedColor)
+                        {
+                            counter++;
+                        }
+                    }
+                }
+                return counter;
+            }
+            if (x1 >= x2 && y1 <= y2)
+            {
+                for (int i = y1; i <= y2; i++)
+                {
+                    for (int j = x2; j <= x1; j++)
+                    {
+                        if (canvas.GetPixel(i, j) == convertedColor)
+                        {
+                            counter++;
+                        }
+                    }
+                }
+                return counter;
+            }
+            else
+            {
+                for (int i = y2; i <= y1; i++)
+                {
+                    for (int j = x1; j <= x2; j++)
+                    {
+                        if (canvas.GetPixel(i, j) == convertedColor)
+                        {
+                            counter++;
+                        }
+                    }
+                }
+                return counter;
+            }
+        }
     }
 }

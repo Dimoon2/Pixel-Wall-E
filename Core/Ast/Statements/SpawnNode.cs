@@ -6,7 +6,6 @@ namespace Interpreter.Core.Ast.Statements
 {
     public class SpawnNode : StatementNode
     {
-        // The Spawn command takes two arguments, which are expressions that should evaluate to numbers.
         public ExpressionNode XCoordinate { get; }
         public ExpressionNode YCoordinate { get; }
 

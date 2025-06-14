@@ -10,7 +10,7 @@ public class CanvasState
     // The field that caused the warning
     private Color[,] _pixels; // Now it will be initialized in the constructor
 
-    public int Size{ get; private set; }
+    public int Size { get; private set; }
 
     public event EventHandler? CanvasInvalidated; // Event to notify when canvas changes
 
@@ -18,7 +18,7 @@ public class CanvasState
     public CanvasState(int size)
     {
         // Validate dimensions right at the start
-        if (size <= 0 )
+        if (size <= 0)
         {
             // Or handle differently, maybe default to a minimum size?
             throw new ArgumentOutOfRangeException(nameof(size) + "/" + nameof(size), "Canvas dimensions must be positive.");
@@ -43,7 +43,7 @@ public class CanvasState
         }
 
         // Only reallocate and clear if dimensions actually change
-        if ( newSize != Size)
+        if (newSize != Size)
         {
             Size = newSize;
             _pixels = new Color[newSize, newSize]; // Reallocate
@@ -89,7 +89,7 @@ public class CanvasState
         // Consistent with SetPixel, out-of-bounds reads can return a default
         return Colors.Transparent; // Or throw? Transparent seems reasonable.
     }
-   
+
 
     // Helper to get the raw pixel data (useful for rendering)
     public Color[,] GetPixelsData()
@@ -101,5 +101,11 @@ public class CanvasState
     public void NotifyChanged()
     {
         CanvasInvalidated?.Invoke(this, EventArgs.Empty);
+    }
+
+    public bool IsValidPosition(int k)
+    {
+        if (k > 0 && k < Size) return true;
+        return false;
     }
 }

@@ -32,7 +32,7 @@
                         Grid.Column="1"
                         BorderBrush="#463145"
                         Content="CLEAR"
-                        Command="{Binding ClearCanvasCommand}"
+                        Command="{Binding Clear}"
                      Foreground="Black" /> -->
                      <!-- <Button
                         Grid.Column="0"
