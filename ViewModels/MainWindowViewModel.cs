@@ -11,6 +11,10 @@ using AvaloniaEdit.Document;
 using Interpreter.Core; // Necesario para TextDocument
 using Interpreter.Core.Interpreter;
 using Interpreter.Core.Ast.Statements;
+using Avalonia.Media;
+using System.Drawing;
+using Interpreter.Core.Interpreter.Helpers;
+using System.Diagnostics;
 
 namespace PixelWallEApp.ViewModels
 {
@@ -19,7 +23,7 @@ namespace PixelWallEApp.ViewModels
         [ObservableProperty]
         private string _initialCodeText = @"
 Spawn(4, 4)
-Color(green)
+Color(Purple)
 n<- (4+3)**2/4
 DrawLine(1, 1, n)";
         [ObservableProperty]
@@ -75,6 +79,14 @@ DrawLine(1, 1, n)";
         }
 
         [RelayCommand]
+        private void Clear()
+        {
+            LogOutput($"Clearing canvas...");
+            CanvasState.Clear(FunctionHandlers.GetColor("white"));
+            LogOutput($"Canvas clead, evrything up to default");
+        }
+
+        [RelayCommand]
         private async Task ExecuteCode()
         {
 
@@ -85,6 +97,11 @@ DrawLine(1, 1, n)";
             // o que llenan una lista de errores que compruebas.
             Lexer lexer = new Lexer(codeToExecute);
             List<Token> tokens = lexer.Tokenize();
+            Debug.WriteLine("Tokens");
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                Debug.WriteLine($"{tokens[i]}");
+            }
             // Aquí podrías loguear el número de tokens o algunos de ellos para depuración.
 
             Parser parser = new Parser(tokens);
@@ -116,7 +133,7 @@ DrawLine(1, 1, n)";
             interpreter.ExecuteProgram(source);
 
             List<string> Errors = interpreter.ErrorLog; // Asumiendo que `errors` es una propiedad pública
-            if (Errors != null && Errors.Count > 0)
+            if (Errors.Count > 0)
             {
                 LogOutput("Parsing failed with errors:");
                 foreach (var error in Errors)
@@ -129,7 +146,7 @@ DrawLine(1, 1, n)";
             CanvasState.NotifyChanged(); // Force UI update
             WallELocation();      // Update Wall-E pos in VM if displayed) { /* Loguear errores */ }
 
-            LogOutput("Execution finished (or attempted).");
+            LogOutput($"Execution finished (or attempted), Walle current position:({_wallEState.X} , {_wallEState.Y})");
         }
         private void LogOutput(string message)
         {

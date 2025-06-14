@@ -23,18 +23,18 @@ namespace Interpreter.Core.Ast.Statements
             {
                 object sizeValue = SizeExpression.Evaluate(interpreter);
 
-                if (!(sizeValue is double sizeDouble))
+                if (!(sizeValue is int size))
                 {
                     throw new RuntimeException($"Size command expects a numeric argument. Got {sizeValue?.GetType().Name}.");
                 }
-                int newSize = (int)Math.Round(sizeDouble);
-
                 // Add validation for brush size as per spec (e.g., must be positive)
-                if (newSize < 1)
+                if (size < 1)
                 {
-                    throw new RuntimeException($"Brush size must be a positive integer. Got {newSize}.");
+                    throw new RuntimeException($"Brush size must be a positive integer. Got {size}.");
                 }
-                interpreter.wallEContext.BrushSize = newSize;
+                if (size % 2 == 0) { size = size - 1;}
+                
+                interpreter.wallEContext.BrushSize = size;
                 interpreter.OutputLog.Add($"Wall-E brush size set to: {interpreter.wallEContext.BrushSize}.");
             }
             catch (RuntimeException rex)

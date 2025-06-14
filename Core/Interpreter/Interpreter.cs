@@ -61,7 +61,6 @@ namespace Interpreter.Core.Interpreter
                 return;
             }
 
-
             //execution loop:
             runtimeEnvironment.ProgramCounter = 0;
             while (runtimeEnvironment.ProgramCounter < programNode.Statements.Count)
@@ -76,6 +75,7 @@ namespace Interpreter.Core.Interpreter
 
                 try
                 {
+                    //  if(currentStatement is SpawnNode && wallEContext.IsSpawned){throw new RuntimeException("Spawn must be the fist instruction in wallE language");}
                     currentStatement.Execute(this);
                 }
                 catch (RuntimeException run)
@@ -101,11 +101,11 @@ namespace Interpreter.Core.Interpreter
             }
             if (ErrorLog.Count == 0)
             {
-                OutputLog.Add("Interpreter: Program execution completed.");
+                OutputLog.Add($"Interpreter: Program execution completed. Walle current position:({wallEContext.X} , {wallEContext.Y})");
             }
             else
             {
-                OutputLog.Add($"Interpreter: Program execution finished with {ErrorLog.Count} error(s).");
+                OutputLog.Add($"Interpreter: Program execution finished with {ErrorLog.Count} error(s), Walle current position:({wallEContext.X} , {wallEContext.Y})");
             }
         }
     }

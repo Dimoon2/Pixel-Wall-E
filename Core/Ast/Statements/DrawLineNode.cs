@@ -68,7 +68,7 @@ namespace Interpreter.Core.Ast.Statements
                 int brushOffset = brushSize / 2; // Integer division gives offset from center
 
                 // Draw points along the line
-                for (int i = 0; i < Distance; i++)
+                for (int i = 0; i <= Distance; i++)
                 {
                     // Apply brush centered at (currentX, currentY)
                     for (int brushY = -brushOffset; brushY <= brushOffset; brushY++)

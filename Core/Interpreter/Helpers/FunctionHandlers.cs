@@ -23,8 +23,6 @@ namespace Interpreter.Core.Interpreter.Helpers
          {"black",Colors.Black},
          {"white",Colors.White},
          {"transparent",Colors.Transparent},
-
-
         };
         public static Color GetColor(string s)
         {
