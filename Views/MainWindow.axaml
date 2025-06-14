@@ -3,7 +3,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:AvaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:ctrl="using:PixelWallEApp.Controls"
+    xmlns:controls="using:PixelWallEApp.Views.Controls"
     xmlns:local="using:PixelWallEApp.Views"
     xmlns:vm="using:PixelWallEApp.ViewModels"
     Title="Pixel Wall-E"
@@ -28,13 +28,13 @@
                         BorderBrush="#463145"
                         Content="RUN" 
                      Foreground="Black"
-                     Command="{Binding RunTestDrawingCommand}"/>
-                    <Button
+                     Command="{Binding ExecuteCodeCommand}"/>
+                    <!-- <Button
                         Grid.Column="1"
                         BorderBrush="#463145"
                         Content="CLEAR"
                         Command="{Binding ClearCanvasCommand}"
-                     Foreground="Black" />
+                     Foreground="Black" /> -->
                      <!-- <Button
                         Grid.Column="0"
                         BorderBrush="#463145"
@@ -54,22 +54,22 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="10">
                <TextBlock Text="Canvas Size:" Foreground="Black" VerticalAlignment="Center"/>
                <!-- Binding with x:DataType -->
-               <TextBox Text="{Binding NewCanvasSizeInput, Mode=TwoWay}" Width="50" VerticalAlignment="Center"/>
+               <TextBox Text="{Binding CanvasSizeInput, Mode=TwoWay}" Width="50" VerticalAlignment="Center"/>
                <!-- Binding with x:DataType -->
                <Button Content="Resize" Background="BlueViolet" Command="{Binding ResizeCanvasCommand}"/>
                <!-- Binding with x:DataType -->
             </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="10" Margin="0,5,0,0">
+            <!-- <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="10" Margin="0,5,0,0">
                 <TextBlock>
                 <Run Text="Size: "/>
                 <Run Text="{Binding LogicalCanvasSize}"/>
                 <Run Text="x"/>
                 <Run Text="{Binding LogicalCanvasSize}"/>
-                </TextBlock>
-                <CheckBox Content="Show Grid" IsChecked="{Binding Path=#MyPixelCanvas.ShowGrid, Mode=TwoWay}" VerticalAlignment="Center"/>
+                </TextBlock> -->
+                <!-- <CheckBox Content="Show Grid" IsChecked="{Binding Path=#MyPixelCanvas.ShowGrid, Mode=TwoWay}" VerticalAlignment="Center"/> -->
                 <!-- Para cambiar el color de la rejilla, necesitarías un ColorPicker o una lista de colores.
                      Por ahora, lo dejamos con el color por defecto o uno fijo. -->
-            </StackPanel>
+            <!-- </StackPanel> -->
             
         </Grid>
         
@@ -78,33 +78,33 @@
             <!-- Columna 0 CONSOLEE
              Codigo  -->
            <Grid  Grid.Column="0" Width="700" Background="Black" RowDefinitions="*, 300">
-                <AvaloniaEdit:TextEditor Grid.Row="0" Text="AAAA"
+                <AvaloniaEdit:TextEditor Grid.Row="0" 
+                           Document="{Binding TheDocument}"
                            ShowLineNumbers="True"
                            FontFamily="Cascadia Code,Consolas,Menlo,Monospace"/> 
                 <!-- Errores     -->
                <Grid Grid.Row="1" Background="#80547E">
-                <TextBlock Text="{Binding StatusMessage}" Foreground="Black"  Margin="0,5,0,0" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding OutputLog}" Foreground="Black"  Margin="0,5,0,0" TextWrapping="Wrap"/>
                </Grid>
            </Grid>
            <!-- Column 1  CANVASSSSSSS-->
             <Grid Grid.Column="1" Background="#491546" >
                  <!-- Canvas Area -->
-               <Border BorderBrush="Gray" BorderThickness="1" Margin="10">
-                   <ctrl:PixelCanvas Name="MyPixelCanvas" 
-                              ItemsSource="{Binding Lines}"
-                              LogicalSize="{Binding LogicalCanvasSize}"
-                              GridBrush="DarkGray"
-                              ShowGrid="True"/>   <!-- O bindearlo como en el CheckBox -->
-               </Border>
+               <Border  BorderBrush="Gray" BorderThickness="1" Margin="10">
+                 <!-- Name the canvas so the ViewModel can get a reference -->
+                  <controls:PixelCanvas x:Name="PixelCanvasDisplay"
+                                   CanvasState="{Binding CanvasState}" />
+        </Border>
            </Grid>
         </Grid>
 
          <!-- fila 2  -->
+         <!-- Output Log -->
         <Grid
             Grid.Row="2"
             Background="#F190EC"
             RowDefinitions="30">
-             <!-- <TextBlock Text="{Binding StatusMessage}" Foreground="DarkSlateGray" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/> -->
+             <TextBlock Text="{Binding OutputLog}" Foreground="DarkSlateGray" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/>
         </Grid>
     </Grid>
 

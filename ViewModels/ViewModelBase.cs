@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using AvaloniaEdit.Document; // Necesario para TextDocument
 
 namespace PixelWallEApp.ViewModels
 {

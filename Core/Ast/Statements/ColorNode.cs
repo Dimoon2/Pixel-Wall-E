@@ -1,6 +1,8 @@
 using System;
+using Avalonia.Media;
 using Interpreter.Core.Ast.Expressions;
 using Interpreter.Core.Interpreter;
+using Interpreter.Core.Interpreter.Helpers;
 namespace Interpreter.Core.Ast.Statements
 {
     class ColorNode : StatementNode
@@ -19,15 +21,16 @@ namespace Interpreter.Core.Ast.Statements
 
         public override void Execute(Interprete interpreter)
         {
-             try
+            try
             {
                 object colorValue = ColorExpression.Evaluate(interpreter);
                 if (!(colorValue is string colorName))
                 {
                     throw new RuntimeException($"Color command expects a string argument (color name). Got {colorValue?.GetType().Name}.");
                 }
-                interpreter.wallEContext.CurrentBrushColor = new PixelColor(colorName);
-                interpreter.OutputLog.Add($"Wall-E brush color set to: {interpreter.wallEContext.CurrentBrushColor.Name}.");
+                Color color = FunctionHandlers.GetColor(colorName);
+                interpreter.wallEContext.BrushColor = color;
+                interpreter.OutputLog.Add($"Wall-E brush color set to: {interpreter.wallEContext.BrushColor}.");
             }
             catch (RuntimeException rex)
             {

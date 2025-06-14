@@ -1,6 +1,7 @@
 // In Core/Interpreter/Helpers/BinaryOperation.cs
 using System;
 using System.Collections.Generic;
+using Avalonia.Media; //forcolors
 
 namespace Interpreter.Core.Interpreter.Helpers
 {
@@ -89,9 +90,9 @@ namespace Interpreter.Core.Interpreter.Helpers
         {
             if (leftValue is double lNumEq && rightValue is double rNumEq) return lNumEq == rNumEq;
             if (leftValue is string lStrEq && rightValue is string rStrEq) return lStrEq.Equals(rStrEq, StringComparison.OrdinalIgnoreCase);
-            if (leftValue is PixelColor lColorEq && rightValue is string rStrColorEq) return lColorEq.Name.Equals(rStrColorEq.ToLower(), StringComparison.OrdinalIgnoreCase);
-            if (leftValue is string lStrColorEq2 && rightValue is PixelColor rColorEq) return rColorEq.Name.Equals(lStrColorEq2.ToLower(), StringComparison.OrdinalIgnoreCase);
-            if (leftValue is PixelColor lc1 && rightValue is PixelColor lc2) return lc1 == lc2;
+            if (leftValue is Color lColorEq && rightValue is string rStrColorEq) return lColorEq == FunctionHandlers.GetColor(rStrColorEq) ? true: false;
+            if (leftValue is string lStrColorEq2 && rightValue is Color rColorEq) return  FunctionHandlers.GetColor(lStrColorEq2) == rColorEq ? true : false;
+            if (leftValue is Color lc1 && rightValue is Color lc2) return lc1 == lc2;
             if (leftValue is bool lBoolEq && rightValue is bool rBoolEq) return lBoolEq == rBoolEq;
             if (leftValue is bool lBEq) return lBEq == ConvertToBooleanStatic(rightValue);
             if (rightValue is bool rBEq) return ConvertToBooleanStatic(leftValue) == rBEq;

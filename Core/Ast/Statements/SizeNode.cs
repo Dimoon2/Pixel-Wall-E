@@ -34,8 +34,8 @@ namespace Interpreter.Core.Ast.Statements
                 {
                     throw new RuntimeException($"Brush size must be a positive integer. Got {newSize}.");
                 }
-                interpreter.wallEContext.CurrentBrushSize = newSize;
-                interpreter.OutputLog.Add($"Wall-E brush size set to: {interpreter.wallEContext.CurrentBrushSize}.");
+                interpreter.wallEContext.BrushSize = newSize;
+                interpreter.OutputLog.Add($"Wall-E brush size set to: {interpreter.wallEContext.BrushSize}.");
             }
             catch (RuntimeException rex)
             {

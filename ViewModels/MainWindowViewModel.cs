@@ -1,146 +1,140 @@
-﻿// ViewModels/MainWindowViewModel.cs
-using Avalonia;
-using Avalonia.Media;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using Avalonia.Threading; // For Dispatcher
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PixelWallEApp.Models;
 using PixelWallEApp.Models.Commands;
-using System.Linq;
+using PixelWallEApp.Views.Controls; // For PixelCanvas reference (needed for redraw)
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Threading.Tasks; // For async relay command
+using AvaloniaEdit.Document; // Necesario para TextDocument
 
 namespace PixelWallEApp.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public partial class MainWindowViewModel : ObservableObject
     {
-        public readonly WallEStateModel _wallE;
-        public ObservableCollection<LineModel> Lines { get; }
+        [ObservableProperty]
+        private string _initialCodeText = @"// Enter Wall-E code here
+// Example:
+Spawn(0, 0)
+DrawLine(1, 1, 5) // Draw diagonal down-right
+// Color(Red) // Not implemented yet
+// Size(3) // Not implemented yet
+// DrawLine(1, 0, 10) // Draw right
+";
+        [ObservableProperty]
+        private TextDocument _theDocument;
 
-        private int _logicalCanvasSize = 50;
-        public int LogicalCanvasSize
-        {
-            get => _logicalCanvasSize;
-            set
-            {
-                if (SetField(ref _logicalCanvasSize, value > 0 ? value : 1))
-                {
-                    ExecuteClearCanvas(null); // Llama al método que usa comandos
-                    ReportCommandStatus($"Canvas resized to {value}x{value}.");
-                }
-            }
-        }
-        public void ExecuteClearCanvas(object? parameter)
-        {
-            Lines.Clear();
-            _wallE.CurrentPosition = new Point(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
-            _wallE.BrushColor = Brushes.Transparent;
-            _wallE.PenThickness = 1;
-            ReportCommandStatus("Canvas cleared.");
-        }
+        [ObservableProperty]
+        private string _outputLog = "Output will appear here.";
 
-        private string _newCanvasSizeInput = "50";
-        public string NewCanvasSizeInput
-        {
-            get => _newCanvasSizeInput;
-            set
-            {
-                if (SetField(ref _newCanvasSizeInput, value))
-                {
-                    (ResizeCanvasCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private int _canvasSizeInput = 50; // Default size for input field
 
-        private string _statusMessage = "Ready.";
-        public string StatusMessage
-        {
-            get => _statusMessage;
-            set => SetField(ref _statusMessage, value);
-        }
+        [ObservableProperty]
+        private CanvasState _canvasState;
 
-        public ICommand RunTestDrawingCommand { get; }
-        public ICommand ClearCanvasCommand { get; }
-        public ICommand ResizeCanvasCommand { get; }
+        [ObservableProperty]
+        private WallEState _wallEState;
+
+        // Reference to the actual canvas control to trigger redraws
+        // This breaks pure MVVM slightly but is pragmatic for custom drawing controls.
+        // An alternative is using messaging or events.
+        public PixelCanvas? CanvasControl { get; set; }
 
 
         public MainWindowViewModel()
         {
-            _wallE = new WallEStateModel();
-            Lines = new ObservableCollection<LineModel>();
-
-            RunTestDrawingCommand = new RelayCommand(ExecuteRunTestDrawing);
-            ClearCanvasCommand = new RelayCommand(ExecuteClearCanvasAction); // Cambiado para distinguir
-            ResizeCanvasCommand = new RelayCommand(ExecuteResizeCanvasAction, CanExecuteResizeCanvas); // Cambiado
-
-            // Inicializar Wall-E
-            var initialSpawnCmd = new SpawnCommand(LogicalCanvasSize / 2, LogicalCanvasSize / 2);
-            initialSpawnCmd.Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-
-            var initialSizeCmd = new SetPenSizeCommand(1);
-            initialSizeCmd.Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
+            _wallEState = new WallEState();
+            // Initialize CanvasState with the default input size
+            _canvasState = new CanvasState(_canvasSizeInput);
+            // Set the static reference in App for the canvas rendering
+             _theDocument = new TextDocument(_initialCodeText); // <--- CAMBIO: Inicializa el documento
+            App.MainWindowViewModel = this; // Make VM accessible
         }
 
-        private void ReportCommandStatus(string message)
+        [RelayCommand]
+        private void ResizeCanvas()
         {
-            StatusMessage = message;
+            LogOutput($"Resizing canvas to {CanvasSizeInput}x{CanvasSizeInput}...");
+            CanvasState.Resize(CanvasSizeInput);
+            // Explicitly trigger redraw on the canvas control
+            CanvasControl?.InvalidateVisual();
+            LogOutput($"Canvas resized. Cleared to white.");
         }
 
-        public void ExecuteRunTestDrawing(object? parameter)
+        [RelayCommand]
+        private async Task ExecuteCode() // Make async if parsing/execution could be long
         {
-            ReportCommandStatus("Running test drawing...");
-
-            // Usar los nuevos comandos
-            new SpawnCommand(10, 10).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            new SetColorCommand("Red").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            new SetPenSizeCommand(1).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            new DrawLineCommand(1, 0, LogicalCanvasSize - 25).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-
-            new SetColorCommand("Blue").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            new SetPenSizeCommand(1).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus); // PenSize ya fue definido
-            new SpawnCommand(5, LogicalCanvasSize - 5).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            new DrawLineCommand(1, 0, 10).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-
-            // new SetColorCommand("Green").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            // new SpawnCommand(LogicalCanvasSize - 5, LogicalCanvasSize - 5).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            // new DrawLineCommand(1, 0, 10).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus); // Este intentará salirse
-
-            // El StatusMessage se actualizará por la última llamada a ReportCommandStatus
-            // Puedes añadir un mensaje general si lo deseas:
-            // ReportCommandStatus("Test drawing finished. Check console for warnings/errors.");
-        }
-
-        // Este es el método que el ICommand "ClearCanvasCommand" realmente llama
-        private void ExecuteClearCanvasAction(object? parameter)
-        {
-            Lines.Clear();
-            // Re-spawn y resetear el pincel usando comandos
-            new SpawnCommand(LogicalCanvasSize / 2, LogicalCanvasSize / 2).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            new SetColorCommand("Transparent").Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            new SetPenSizeCommand(1).Execute(_wallE, Lines, LogicalCanvasSize, ReportCommandStatus);
-            ReportCommandStatus("Canvas cleared.");
-        }
-
-        public bool CanExecuteResizeCanvas(object? parameter)
-        {
-            return int.TryParse(NewCanvasSizeInput, out int size) && size > 0;
-        }
-
-        // Este es el método que el ICommand "ResizeCanvasCommand" realmente llama
-        private void ExecuteResizeCanvasAction(object? parameter)
-        {
-            if (int.TryParse(NewCanvasSizeInput, out int size) && size > 0)
+            if (CanvasControl == null)
             {
-                // La propiedad LogicalCanvasSize al ser cambiada ya llama a ExecuteClearCanvasAction (indirectamente)
-                // y actualiza el StatusMessage.
-                LogicalCanvasSize = size;
+                LogOutput("Error: Canvas control not available.");
+                return;
+            }
+
+            string codeToExecute = TheDocument.Text;
+
+            LogOutput("Parsing code...");
+            // List<ICommandDefinition>? commands = null;
+            try
+            {
+                // commands = CommandParser.Parse(CodeText);
+                // LogOutput($"Parsing successful. {commands.Count} command(s) found.");
+            }
+            catch (FormatException ex)
+            {
+                LogOutput($"Parsing Error: {ex.Message}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                LogOutput($"Unexpected Parsing Error: {ex.Message}");
+                return;
+            }
+
+
+            LogOutput("Executing code...");
+            string? executionResult = null;
+            try
+            {
+                // Run the interpreter - it modifies WallEState and CanvasState directly
+                // executionResult = Interpreter.Run(commands, WallEState, CanvasState);
+            }
+            catch (Exception ex)
+            {
+                LogOutput($"Unexpected Execution Error: {ex.Message}");
+                // Optionally reset state or leave canvas partially drawn?
+                // Let's leave it partially drawn for debugging.
+                CanvasControl?.InvalidateVisual(); // Redraw partially modified state
+                return;
+            }
+
+
+            if (executionResult != null)
+            {
+                LogOutput($"Execution Failed: {executionResult}");
+                // Redraw canvas to show state *before* the failed command (if needed, depends on Interpreter logic)
+                // Currently, Interpreter stops, so the state is as it was *after* the last successful command.
+                CanvasControl?.InvalidateVisual();
             }
             else
             {
-                ReportCommandStatus("Invalid size input for resize.");
+                LogOutput("Execution completed successfully.");
+                // Trigger redraw on the UI thread after successful execution
+                await Dispatcher.UIThread.InvokeAsync(() => CanvasControl?.InvalidateVisual());
+
             }
         }
+
+        private void LogOutput(string message)
+        {
+            // Prepend new messages to the log
+            OutputLog = $"{DateTime.Now:HH:mm:ss}: {message}\n{OutputLog}";
+            // Optional: Limit log length
+            if (OutputLog.Length > 4000) OutputLog = OutputLog.Substring(0, 4000);
+        }
+
+        // Expose WallEState for the canvas rendering (simple approach)
+        public WallEState? WallE => _wallEState;
     }
 }
-
-// Los métodos Spawn, SetColor, SetSize ya no son necesarios como métodos públicos directos aquí
-

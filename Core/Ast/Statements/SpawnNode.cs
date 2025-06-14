@@ -31,13 +31,13 @@ namespace Interpreter.Core.Ast.Statements
                 if (!(Y is int yVal))
                     throw new RuntimeException($"Spawn Y coordinate must be a number. Got {Y?.GetType().Name}.");
 
-                if (xVal > interpreter.canvas.Width || yVal > interpreter.canvas.Width)
+                if (xVal > interpreter.canvas.Size || yVal > interpreter.canvas.Size || xVal < 0 || yVal < 0)
                 {
                     throw new RuntimeException("Coordinate X or Y out of the bounds of the canvas");
                 }
 
-                interpreter.wallEContext.CurrentX = xVal;
-                interpreter.wallEContext.CurrentY = yVal;
+                interpreter.wallEContext.X = xVal;
+                interpreter.wallEContext.Y = yVal;
                 interpreter.OutputLog.Add($"Executing: Spawn({XCoordinate}, {YCoordinate})");
             }
             catch (RuntimeException ex)
