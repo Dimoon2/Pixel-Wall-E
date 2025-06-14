@@ -41,9 +41,6 @@ namespace Interpreter.Core.Interpreter.Helpers
             { TokenType.KeywordIsBrushSize, HandleIsBrushSize },
             { TokenType.KeywordIsCanvasColor, HandleIsCanvasColor },
             { TokenType.KeywordGetColorCount, HandleGetColorCount },
-            
-            // { TokenType.KeywordTrue, (args, w, c, st) => { if (args.Count != 0) throw new RuntimeException("true() takes no arguments."); return true; } },
-            // { TokenType.KeywordFalse, (args, w, c, st) => { if (args.Count != 0) throw new RuntimeException("false() takes no arguments."); return false; } }
         };
 
         public static bool TryGetHandler(TokenType functionKeywordType, out BuiltInFunctionHandler handler)

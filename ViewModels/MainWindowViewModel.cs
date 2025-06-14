@@ -15,6 +15,9 @@ using Avalonia.Media;
 using System.Drawing;
 using Interpreter.Core.Interpreter.Helpers;
 using System.Diagnostics;
+using System.IO; // Para leer y escribir archivos
+using Avalonia.Controls; // Para poder recibir el 'Window' como parámetro
+using Avalonia.Platform.Storage; 
 
 namespace PixelWallEApp.ViewModels
 {
@@ -49,9 +52,89 @@ DrawLine(1, 1, n)";
         [NotifyPropertyChangedFor(nameof(IsWallESpawned))]
         private int _wallEY = -1;
 
-        // Reference to the actual canvas control to trigger redraws
-        // This breaks pure MVVM slightly but is pragmatic for custom drawing controls.
-        // An alternative is using messaging or events.
+        [RelayCommand]
+private async Task LoadFile(Window parentWindow)
+{
+    if (parentWindow is null) return;
+
+    // Obtener el StorageProvider desde la ventana principal
+    var storageProvider = parentWindow.StorageProvider;
+    var fileType = new FilePickerFileType("PixelWall-E Script") { Patterns = ["*.pw"] };
+
+    // Abrir el diálogo para seleccionar archivo
+    var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+    {
+        Title = "Load Wall-E Script",
+        AllowMultiple = false,
+        FileTypeFilter = [fileType]
+    });
+
+    if (result.Count > 0)
+    {
+        var file = result[0];
+        try
+        {
+            // Leer el contenido del archivo
+            await using var stream = await file.OpenReadAsync();
+            using var reader = new StreamReader(stream);
+            string fileContent = await reader.ReadToEndAsync();
+            
+            // Actualizar el documento del editor
+            TheDocument.Text = fileContent;
+            LogOutput($"File loaded: {file.Name}");
+        }
+        catch (Exception ex)
+        {
+            LogOutput($"Error loading file: {ex.Message}");
+        }
+    }
+    else
+    {
+        LogOutput("File loading cancelled.");
+    }
+}
+
+[RelayCommand]
+private async Task SaveFile(Window parentWindow)
+{
+    if (parentWindow is null) return;
+
+    // Obtener el StorageProvider
+    var storageProvider = parentWindow.StorageProvider;
+    var fileType = new FilePickerFileType("PixelWall-E Script") { Patterns = ["*.pw"] };
+    
+    // Abrir el diálogo para guardar archivo
+    var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+    {
+        Title = "Save Wall-E Script",
+        DefaultExtension = "pw",
+        FileTypeChoices = [fileType],
+        ShowOverwritePrompt = true
+    });
+
+    if (file is not null)
+    {
+        try
+        {
+            string textToSave = TheDocument.Text;
+
+            // Escribir el contenido en el archivo
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(textToSave);
+            
+            LogOutput($"File saved: {file.Name}");
+        }
+        catch (Exception ex)
+        {
+            LogOutput($"Error saving file: {ex.Message}");
+        }
+    }
+    else
+    {
+        LogOutput("File saving cancelled.");
+    }
+}
 
 
         public MainWindowViewModel()
@@ -86,7 +169,7 @@ DrawLine(1, 1, n)";
             LogOutput($"Canvas clead, evrything up to default");
         }
 
-        [RelayCommand]
+        [RelayCommand]//////////Code execution
         private async Task ExecuteCode()
         {
 

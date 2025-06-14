@@ -20,33 +20,37 @@
     <Grid Background="White" RowDefinitions="Auto,*, Auto">
          <!-- fila 0  -->
         <Grid Grid.Row="0" Background="#F190EC" ColumnDefinitions="*,*">
-            <StackPanel Grid.Column="0" HorizontalAlignment="Left" Orientation="Horizontal">
-                <Grid Width="300" ColumnDefinitions="Auto, 905">
+            <StackPanel Grid.Column="0" Margin="0,10" HorizontalAlignment="Left" Orientation="Horizontal" >
                     <Button
                         Grid.Column="0"
                         BorderBrush="#463145"
                         Content="RUN" 
                      Foreground="Black"
                      Command="{Binding ExecuteCodeCommand}"/>
-                    <!-- <Button
+
+                    <Button
                         Grid.Column="1"
                         BorderBrush="#463145"
                         Content="CLEAR"
-                        Command="{Binding Clear}"
-                     Foreground="Black" /> -->
-                     <!-- <Button
+                        Command="{Binding ClearCommand}"
+                     Foreground="Black" />
+
+                     <Button
                         Grid.Column="0"
                         BorderBrush="#463145"
                         Content="LOAD" 
-                     Foreground="Black"/>
+                        Command="{Binding LoadFileCommand}"
+                        CommandParameter="{Binding $parent[Window]}"
+                        Foreground="Black"/>
 
                     <Button
                         Grid.Column="1"
                         BorderBrush="#463145"
                         Content="SAVE"
-                     Foreground="Black" /> -->
+                        Command="{Binding SaveFileCommand}"
+                        CommandParameter="{Binding $parent[Window]}" 
+                     Foreground="Black" />
                        
-                </Grid>
 
             </StackPanel>
             
