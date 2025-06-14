@@ -4,7 +4,8 @@ using Interpreter.Core.Ast; // For AstNode
 using Interpreter.Core.Ast.Statements; // For ProgramNode, StatementNode, SpawnNode
 using Interpreter.Core.Ast.Expressions;
 using System.Linq.Expressions;
-using System.Linq; // For ExpressionNode, NumberLiteralNode
+using System.Linq;
+using System.Diagnostics; // For ExpressionNode, NumberLiteralNode
 
 namespace Interpreter.Core
 {
@@ -60,17 +61,18 @@ namespace Interpreter.Core
             return null!; // Or throw new ParserException(...);
         }
 
-        private Token Consume(TokenType expectedType)
-        {
-            if (currentTokenType == expectedType)
-            {
-                Token token = currentToken;
-                Advance();
-                return token;
-            }
-            // This would be an internal parser error or a place where an exception is better.
-            throw new InvalidOperationException($"Parser Internal Error: Tried to consume {expectedType} but found {currentTokenType}. This should have been checked before calling Consume.");
-        }
+        // private Token Match(TokenType expectedType)
+        // {
+        //     if (currentTokenType == expectedType)
+        //     {
+        //         Token token = currentToken;
+        //         Advance();
+        //         return token;
+        //     }
+        //     // This would be an internal parser error or a place where an exception is better.
+
+        //     throw new InvalidOperationException($"Parser Internal Error: Tried to Match {expectedType} but found {currentTokenType}. This should have been checked before calling Match.");
+        // }
 
         public TokenType PeekType()
         {
@@ -140,6 +142,7 @@ namespace Interpreter.Core
                         //         break;
                         //     }
                         Advance();
+                        
                         //}
                     }
                 }
@@ -147,7 +150,7 @@ namespace Interpreter.Core
                 // 4. After a statement or error recovery, expect a Newline or EndOfFile.
                 if (currentTokenType == TokenType.Newline)
                 {
-                    Advance(); // Consume the (single) newline
+                    Advance(); // Match the (single) newline
                 }
                 else if (currentTokenType != TokenType.EndOfFile)
                 {
@@ -196,13 +199,14 @@ namespace Interpreter.Core
                     {
                         return ParseAssignmentStatement();
                     }
-                    else if (PeekType() == TokenType.Newline)// FOR LABELS
+                    else if (PeekType() == TokenType.Newline || PeekType() == TokenType.EndOfFile)// FOR LABELS
                     {
                         return ParseLabelStatement();
                     }
                     else
                     {
-                        errors.Add($"Parser Error: Identifier '{currentToken.Value}' at start of statement is not followed by '<-' for assignment or ':' for a label.");
+                        Debug.WriteLine("Entre a identifier con algo q no es variable ni labe");
+                        errors.Add($"Parser Error: Identifier '{currentToken.Value}' at start of statement is not followed by '<-' or '_' for assigments and label.");
                         return null!;
                     }
                 case TokenType.KeywordGoTo:
@@ -211,14 +215,14 @@ namespace Interpreter.Core
                 // ... other cases ...
                 default:
                     errors.Add($"Parser Error: Unexpected token {currentTokenType} ('{currentToken.Value}') at start of a statement. Skipping this token.");
-                    Advance(); // Consume the problematic token //not in new prom
+                    Advance(); // Match the problematic token //not in new prom
                     return null!; // Error
             }
         }
         // --- Specific Statement Parsers ---
         private SpawnNode ParseSpawnStatement()
         {
-            Consume(TokenType.KeywordSpawn); // Consume 'Spawn'
+            Match(TokenType.KeywordSpawn); // Match 'Spawn'
 
             if (Match(TokenType.LParen) == null)
             {
@@ -253,25 +257,25 @@ namespace Interpreter.Core
 
         private ColorNode ParseColorStatement()
         {
-            Consume(TokenType.KeywordColor);
-            Consume(TokenType.LParen);
+            Match(TokenType.KeywordColor);
+            Match(TokenType.LParen);
             ExpressionNode color = ParseExpression();
-            Consume(TokenType.RParen);
+            Match(TokenType.RParen);
             return new ColorNode(color);
         }
 
         private SizeNode ParseSizeStatement()
         {
-            Consume(TokenType.KeywordSize);
-            Consume(TokenType.LParen);
+            Match(TokenType.KeywordSize);
+            Match(TokenType.LParen);
             ExpressionNode size = ParseExpression();
-            Consume(TokenType.RParen);
+            Match(TokenType.RParen);
             return new SizeNode(size);
         }
 
         private DrawLineNode ParseDrawLineStatement()
         {
-            if (Consume(TokenType.KeywordDrawLine) == null) return null!;
+            if (Match(TokenType.KeywordDrawLine) == null) return null!;
             if (Match(TokenType.LParen) == null) return null!;
             ExpressionNode dirX = ParseExpression();
             if (dirX == null) return null!;
@@ -288,7 +292,7 @@ namespace Interpreter.Core
 
         private DrawCircleNode ParseDrawCircleStatement()
         {
-            if (Consume(TokenType.KeywordDrawCircle) == null) return null!;
+            if (Match(TokenType.KeywordDrawCircle) == null) return null!;
             if (Match(TokenType.LParen) == null) return null!;
             ExpressionNode dirX = ParseExpression();
             if (dirX == null) return null!;
@@ -305,7 +309,7 @@ namespace Interpreter.Core
 
         private DrawRectangleNode ParseDrawRectangleStatement()
         {
-            if (Consume(TokenType.KeywordDrawRectangle) == null) return null!;
+            if (Match(TokenType.KeywordDrawRectangle) == null) return null!;
             if (Match(TokenType.LParen) == null) return null!;
 
             ExpressionNode dirX = ParseExpression();
@@ -333,7 +337,7 @@ namespace Interpreter.Core
 
         private FillNode ParseFillStatement()
         {
-            Consume(TokenType.KeywordFill);
+            Match(TokenType.KeywordFill);
             if (Match(TokenType.LParen) == null) return null!;
             if (Match(TokenType.RParen) == null) return null!;
             return new FillNode();
@@ -361,7 +365,7 @@ namespace Interpreter.Core
 
         private GoToNode ParseGoToStatement()
         {
-            Consume(TokenType.KeywordGoTo);
+            Match(TokenType.KeywordGoTo);
             if (Match(TokenType.LBracket) == null) return null!;
 
             Token labelIdentifier = Match(TokenType.Identifier);
@@ -371,10 +375,10 @@ namespace Interpreter.Core
                 return null!;
             }
 
-            Consume(TokenType.RBracket);
-            Consume(TokenType.LParen);
+            Match(TokenType.RBracket);
+            Match(TokenType.LParen);
             ExpressionNode condition = ParseExpression();
-            Consume(TokenType.RParen);
+            Match(TokenType.RParen);
             return new GoToNode(labelIdentifier, condition);
         }
         // --- Expression Parsers ---
@@ -565,7 +569,7 @@ namespace Interpreter.Core
                 return null!;
             }
 
-            // Expect and consume RParen (since these are no-argument functions)
+            // Expect and Match RParen (since these are no-argument functions)
             if (Match(TokenType.RParen) == null)
             {
                 // Error: Expected ')' to close function call

@@ -72,7 +72,7 @@ namespace Interpreter.Core
 
         private bool IsIdentifierPart(char c)
         {
-            return char.IsLetterOrDigit(c) || c == '_' || c == '-';
+            return char.IsLetterOrDigit(c) || c == '_' && c!= '-';
         }
 
         public Token GetNextToken()
@@ -169,12 +169,12 @@ namespace Interpreter.Core
                     }
                 }
 
-                // 6. Handle Operators and Punctuation (using switch)
-                char charToSwitch = CurrentChar; // Store before advancing in some cases
+                // 6. Handle Operators and Punctuation 
+                char charToSwitch = CurrentChar;
                 switch (charToSwitch)
                 {
                     case '+': Advance(); return new Token(TokenType.Plus, "+");
-                    case '-': Advance(); return new Token(TokenType.Minus, "-"); // Note: '-' in identifiers handled by IsIdentifierPart
+                    case '-': Advance(); return new Token(TokenType.Minus, "-"); 
                     case '*':
                         if (Peek() == '*') { Advance(); Advance(); return new Token(TokenType.Power, "**"); }
                         Advance(); return new Token(TokenType.Multiply, "*");

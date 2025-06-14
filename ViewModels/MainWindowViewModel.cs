@@ -133,7 +133,7 @@ DrawLine(1, 1, n)";
             interpreter.ExecuteProgram(source);
 
             List<string> Errors = interpreter.ErrorLog; // Asumiendo que `errors` es una propiedad pública
-            if (Errors.Count > 0)
+            if (Errors != null && Errors.Count > 0)
             {
                 LogOutput("Parsing failed with errors:");
                 foreach (var error in Errors)
