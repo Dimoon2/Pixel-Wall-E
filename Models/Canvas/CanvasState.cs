@@ -105,7 +105,7 @@ public class CanvasState
 
     public bool IsValidPosition(int k)
     {
-        if (k > 0 && k < Size) return true;
+        if (k >= 0 && k <= Size) return true;
         return false;
     }
 }

@@ -37,6 +37,10 @@ namespace Interpreter.Core.Ast.Statements
             {
                 throw new RuntimeException($"Runtime Error: DrawCircle directions must be of 1, -1 or 0.");
             }
+            if(r < 0)
+            {
+                throw new RuntimeException($"Runtime Error: DrawCircle radius must be positive!.");
+            }
             int cx = interpreter.wallEContext.X;
             int cy = interpreter.wallEContext.Y;
 

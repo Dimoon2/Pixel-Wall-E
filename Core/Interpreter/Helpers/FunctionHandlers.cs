@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia.Media;
 using PixelWallEApp.Models;
@@ -27,7 +28,7 @@ namespace Interpreter.Core.Interpreter.Helpers
         };
         public static Color GetColor(string s)
         {
-            if (!colors.TryGetValue(s, out Color value))
+            if (!colors.TryGetValue(s.ToLower(), out Color value))
                 throw new RuntimeException("Expected a string representing a color!");
             return value;
 
@@ -132,12 +133,11 @@ namespace Interpreter.Core.Interpreter.Helpers
 
             if (!canvas.IsValidPosition(x1) || !canvas.IsValidPosition(x2) || !canvas.IsValidPosition(y1) || !canvas.IsValidPosition(y2))
             {
-                return 0;
                 throw new RuntimeException("Not valid coordinates in GetColorCount arguments.");
             }
 
             int counter = 0;
-            Color convertedColor = GetColor($"{color}");
+            Color convertedColor = GetColor(color);
             if (x1 <= x2 && y1 <= y2)
             {
                 for (int i = x1; i <= x2; i++)
@@ -147,6 +147,7 @@ namespace Interpreter.Core.Interpreter.Helpers
                         if (canvas.GetPixel(i, j) == convertedColor)
                         {
                             counter++;
+
                         }
                     }
                 }
@@ -175,6 +176,7 @@ namespace Interpreter.Core.Interpreter.Helpers
                         if (canvas.GetPixel(i, j) == convertedColor)
                         {
                             counter++;
+
                         }
                     }
                 }
@@ -189,6 +191,7 @@ namespace Interpreter.Core.Interpreter.Helpers
                         if (canvas.GetPixel(i, j) == convertedColor)
                         {
                             counter++;
+
                         }
                     }
                 }
