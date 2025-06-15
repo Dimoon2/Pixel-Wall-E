@@ -25,10 +25,30 @@ namespace PixelWallEApp.ViewModels
     {
         [ObservableProperty]
         private string _initialCodeText = @"
-Spawn(4, 4)
-Color(Purple)
-n<- (4+3)**2/4
-DrawLine(1, 1, n)";
+Spawn(10, 10)
+Color(Blue)
+Size(3)
+
+side <- 0
+length <- 10
+
+loop_start
+    DrawLine(1, 0, length) 
+    DrawLine(0, 1, length) 
+    DrawLine(-1, 0, length) 
+    DrawLine(0, -1, length) 
+
+    Color(Transparent)
+    DrawLine(1, 0, 1)
+    Color(Blue)
+
+    side <- side + 1
+GoTo [loop_start] (side < 4)
+
+Color(Red)
+Size(5)
+DrawLine(0,0,0)";
+
         [ObservableProperty]
         private TextDocument _theDocument;
 

@@ -2,9 +2,11 @@ using System;
 using Interpreter.Core.Ast.Expressions;
 using Interpreter.Core.Interpreter;
 using Avalonia.Media;
+using PixelWallEApp.Models;
+using Interpreter.Core.Interpreter.Helpers;
 namespace Interpreter.Core.Ast.Statements
 {
-    class DrawLineNode : StatementNode
+    public class DrawLineNode : StatementNode
     {
         public ExpressionNode ExpresDirX { get; }
         public ExpressionNode ExpresDirY { get; }
@@ -63,7 +65,7 @@ namespace Interpreter.Core.Ast.Statements
                 int brushSize = interpreter.wallEContext.BrushSize;
                 if (brushSize % 2 == 0)
                 {
-                    brushSize = Math.Max(1, brushSize - 1); // Use odd size immediately smaller
+                    brushSize -= 1; // Use odd size immediately smaller
                 }
                 int brushOffset = brushSize / 2; // Integer division gives offset from center
 
@@ -95,6 +97,7 @@ namespace Interpreter.Core.Ast.Statements
 
                 interpreter.wallEContext.X = lastDrawnX;
                 interpreter.wallEContext.Y = lastDrawnY;
+                interpreter.canvas.SetPixel(interpreter.wallEContext.X,interpreter.wallEContext.Y, FunctionHandlers.GetColor("white"));
             }
             else
             {
@@ -102,7 +105,7 @@ namespace Interpreter.Core.Ast.Statements
             }
         }
 
-        public bool IsValidDir(int dir)
+        public static bool IsValidDir(int dir)
         {
             if (dir == 1 || dir == -1 || dir == 0) return true;
             return false;

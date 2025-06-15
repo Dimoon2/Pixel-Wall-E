@@ -24,17 +24,52 @@ namespace Interpreter.Core.Ast.Statements
 
         public override void Execute(Interprete interpreter)
         {
-            // int cx = (int)ExpresDirX.Evaluate(interpreter);
-            // int cy = (int)ExpresDirY.Evaluate(interpreter);
+            object exDir = ExpresDirX.Evaluate(interpreter);
+            object eyDir = ExpresDirY.Evaluate(interpreter);
+            object radius = Radius.Evaluate(interpreter);
 
-            // int x = 0;
-            // int y = -(int)Radius.Evaluate(interpreter);
-            // while (x < -y)
-            // {
-            //     x++;
-            //     interpreter.canvas.SetPixel(cx+x, cy+y);
-            // }
-            throw new NotImplementedException();
+            if (exDir is not int dx || eyDir is not int dy || radius is not int r)
+            {
+                throw new RuntimeException($"Runtime Error: arguments must be integers");
+            }
+
+            if (!DrawLineNode.IsValidDir(dx) || !DrawLineNode.IsValidDir(dy))
+            {
+                throw new RuntimeException($"Runtime Error: DrawCircle directions must be of 1, -1 or 0.");
+            }
+            int cx = interpreter.wallEContext.X;
+            int cy = interpreter.wallEContext.Y;
+
+            cx = cx + (dx * r);
+            cy = cy + (dy * r);
+
+            int x = 0;
+            int y = -r;
+            int p = -r;
+
+            while (x < -y)
+            {
+                if (p > 0)
+                {
+                    y++;
+                    p += 2 * (x + y) + 1;
+                }
+                else
+                { p += 2 * x + 1; }
+
+                interpreter.canvas.SetPixel(cx + x, cy + y, interpreter.wallEContext.BrushColor);
+                interpreter.canvas.SetPixel(cx - x, cy + y, interpreter.wallEContext.BrushColor);
+                interpreter.canvas.SetPixel(cx + x, cy - y, interpreter.wallEContext.BrushColor);
+                interpreter.canvas.SetPixel(cx - x, cy - y, interpreter.wallEContext.BrushColor);
+                interpreter.canvas.SetPixel(cx + y, cy + x, interpreter.wallEContext.BrushColor);
+                interpreter.canvas.SetPixel(cx + y, cy - x, interpreter.wallEContext.BrushColor);
+                interpreter.canvas.SetPixel(cx - y, cy + x, interpreter.wallEContext.BrushColor);
+                interpreter.canvas.SetPixel(cx - y, cy - x, interpreter.wallEContext.BrushColor);
+
+                x++;
+            }
+            interpreter.wallEContext.X = cx;
+            interpreter.wallEContext.Y = cy;
         }
     }
 }
