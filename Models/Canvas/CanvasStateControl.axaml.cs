@@ -97,6 +97,7 @@ public partial class CanvasStateControl : UserControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        LoadWallEIcon(); // Attempt to load icon when control is ready
     }
 
     // --- Load Wall-E Icon Method ---
@@ -108,8 +109,8 @@ public partial class CanvasStateControl : UserControl
     try
     {
         // Make sure your assembly name and path are correct!
-        string assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? "PixelWallEApp"; // Fallback name
-        string uriString = $"avares://{assemblyName}/Assets/avalonia-logo.ico";
+        string assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? "PixelWallE"; // Fallback name
+        string uriString = $"avares://{assemblyName}/Assets/pets.png";
         Uri iconUri = new Uri(uriString);
 
         // --- Use static AssetLoader instead of AvaloniaLocator ---

@@ -93,15 +93,8 @@ namespace Interpreter.Core.Ast.Statements
                     currentY += DirY;
                 }
 
-                // Spec: "new position of Wall-E will be en the end of the line (last pixel drawn)"
-                // This means the center of the last drawn brush square.
                 interpreter.wallEContext.X = lastDrawnX;
                 interpreter.wallEContext.Y = lastDrawnY;
-
-
-                // Optional: Add check if final Wall-E position is out of bounds after drawing?
-                // The spec example implies the final position is just calculated, even if OOB.
-                // The example shows (15,10) after DrawLine(1,0,5) from (10,10).
             }
             else
             {
