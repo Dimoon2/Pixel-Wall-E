@@ -26,7 +26,7 @@ namespace PixelWallEApp.ViewModels
         [ObservableProperty]
         private string _initialCodeText = @"
 Spawn(10, 10)
-Color(Blue)
+Color(""Blue"")
 Size(3)
 
 side <- 0
@@ -38,14 +38,14 @@ loop_start
     DrawLine(-1, 0, length) 
     DrawLine(0, -1, length) 
 
-    Color(Transparent)
+    Color(""Transparent"")
     DrawLine(1, 0, 1)
-    Color(Blue)
+    Color(""Blue"")
 
     side <- side + 1
 GoTo [loop_start] (side < 4)
 
-Color(Red)
+Color(""Purple"")
 Size(5)
 DrawLine(0,0,0)";
 
