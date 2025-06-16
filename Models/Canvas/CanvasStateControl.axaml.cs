@@ -362,11 +362,6 @@ public partial class CanvasStateControl : UserControl
         {
             double labelCenterY = pixelAreaBounds.Top + (y + 0.5) * pixelHeight; // Center of the pixel row
 
-             // --- REMOVED TICK DRAWING ---
-            // double tickStartX = bounds.Left + axisThickness * 0.7;
-            // double tickEndX = pixelAreaBounds.Left;
-            // context.DrawLine(pen, new Point(tickStartX, labelCenterY), new Point(tickEndX, labelCenterY));
-             // --- END REMOVAL ---
 
             var labelText = new FormattedText(
                 y.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,

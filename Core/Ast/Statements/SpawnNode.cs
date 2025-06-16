@@ -8,7 +8,6 @@ namespace Interpreter.Core.Ast.Statements
     {
         public ExpressionNode XCoordinate { get; }
         public ExpressionNode YCoordinate { get; }
-
         public SpawnNode(ExpressionNode xCoordinate, ExpressionNode yCoordinate)
         {
             XCoordinate = xCoordinate;
@@ -21,9 +20,7 @@ namespace Interpreter.Core.Ast.Statements
         }
 
         public override void Execute(Interprete interpreter)
-        {
-            Debug.WriteLine("executing spawn");
-
+        {   
             try
             {
                 object X = XCoordinate.Evaluate(interpreter);
@@ -37,7 +34,10 @@ namespace Interpreter.Core.Ast.Statements
                 {
                     throw new RuntimeException("Coordinate X or Y out of the bounds of the canvas");
                 }
-
+                if (interpreter.wallEContext.IsSpawned)
+                {
+                    throw new RuntimeException("Wall-E can only be spawned once"); 
+                }
                 interpreter.wallEContext.X = xVal;
                 interpreter.wallEContext.Y = yVal;
                 interpreter.wallEContext.IsSpawned = true;

@@ -6,9 +6,9 @@ namespace PixelWallEApp.Models
     {
         public int X { get; set; }
         public int Y { get; set; }
-        public Color BrushColor { get; set; } = Colors.Transparent; // Default according to spec
-        public int BrushSize { get; set; } = 1; // Default according to spec
-        public bool IsSpawned { get; set; } = false; // Track if Spawn has been called
+        public Color BrushColor { get; set; } = Colors.Transparent; 
+        public int BrushSize { get; set; } = 1;
+        public bool IsSpawned { get; set; } = false;
 
         public void Reset()
         {
