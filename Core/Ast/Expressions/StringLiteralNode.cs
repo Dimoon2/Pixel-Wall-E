@@ -12,7 +12,8 @@ namespace Interpreter.Core.Ast.Expressions
         {
             if (stringToken.Type != TokenType.String || !(stringToken.Literal is string))
             {
-                throw new ArgumentException("StringLiteralNode requires a STRING token with a string literal.", nameof(stringToken));
+                return;
+               // throw new ArgumentException("StringLiteralNode requires a STRING token with a string literal.", nameof(stringToken));
             }
             StringToken = stringToken;
             Value = (string)stringToken.Literal;

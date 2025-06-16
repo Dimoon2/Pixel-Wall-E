@@ -12,7 +12,8 @@ namespace Interpreter.Core.Ast.Statements
         {
             if (identifierToken.Type != TokenType.Identifier)
             {
-                throw new ArgumentException("LabelNode requires an IDENTIFIER token for the label name.", nameof(identifierToken));
+                return;
+                //throw new ArgumentException("LabelNode requires an IDENTIFIER token for the label name.", nameof(identifierToken));
             }
             IdentifierToken = identifierToken;
         }

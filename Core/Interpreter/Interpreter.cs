@@ -60,6 +60,17 @@ namespace Interpreter.Core.Interpreter
                 ErrorLog.Add($"Preprocessing Error: {run.Message}");
                 return;
             }
+            catch (ArgumentNullException ex)
+            {
+                ErrorLog.Add($"Preprocessing Error: {ex.Message}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Add($"Preprocessing Error: {ex.Message}");
+                return;
+            }
+            
 
             //execution loop:
             runtimeEnvironment.ProgramCounter = 0;

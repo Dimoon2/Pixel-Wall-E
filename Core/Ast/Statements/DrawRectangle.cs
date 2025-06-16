@@ -16,11 +16,11 @@ namespace Interpreter.Core.Ast.Statements
         //(int dirX, int dirY, int distance, int width, int height
         public DrawRectangleNode(ExpressionNode expres1, ExpressionNode expres2, ExpressionNode expres3, ExpressionNode width, ExpressionNode height)
         {
-            ExpresDirX = expres1 ?? throw new ArgumentNullException(nameof(expres1));
-            ExpresDirY = expres2 ?? throw new ArgumentNullException(nameof(expres2));
-            ExpresDistance = expres3 ?? throw new ArgumentNullException(nameof(expres3));
-            Width = width ?? throw new ArgumentNullException(nameof(width));
-            Height = height ?? throw new ArgumentNullException(nameof(height));
+            ExpresDirX = expres1;
+            ExpresDirY = expres2;
+            ExpresDistance = expres3;
+            Width = width;
+            Height = height;
         }
 
         public override string ToString()

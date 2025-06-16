@@ -13,9 +13,9 @@ namespace Interpreter.Core.Ast.Expressions
 
         public BinaryOpNode(ExpressionNode left, Token operatorToken, ExpressionNode right)
         {
-            Left = left ?? throw new ArgumentNullException(nameof(left));
-            Operator = operatorToken ?? throw new ArgumentNullException(nameof(operatorToken));
-            Right = right ?? throw new ArgumentNullException(nameof(right));
+            Left = left;
+            Operator = operatorToken;
+            Right = right;
         }
 
         public override string ToString()
@@ -53,10 +53,9 @@ namespace Interpreter.Core.Ast.Expressions
                 catch (RuntimeException) { throw; } // Re-throw exceptions
                 catch (Exception) // Catch other unexpected errors from handlers
                 {
-                    throw; // new RuntimeException($"Error during binary operation '{node.Operator.Value}': {ex.Message}", ex);
+                    throw new RuntimeException ($"Error during binary operation '{Operator.Value}");
                 }
             }
-
             throw new RuntimeException($"Unsupported binary operator: {Operator.Type}");
         }
     }

@@ -13,8 +13,8 @@ namespace Interpreter.Core.Ast.Expressions
 
         public UnaryOpNode(Token operatorToken, ExpressionNode value)
         {
-            Operator = operatorToken ?? throw new ArgumentNullException(nameof(operatorToken));
-            Value = value ?? throw new ArgumentNullException(nameof(value));
+            Operator = operatorToken;
+            Value = value;
         }
 
         public override string ToString()

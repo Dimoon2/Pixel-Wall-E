@@ -14,8 +14,8 @@ namespace Interpreter.Core.Ast.Expressions
 
         public FunctionCallNode(Token functionNameToken, List<ExpressionNode> arguments)
         {
-            FunctionNameToken = functionNameToken ?? throw new ArgumentNullException(nameof(functionNameToken));
-            Arguments = arguments ?? new List<ExpressionNode>();
+            FunctionNameToken = functionNameToken;
+            Arguments = arguments;
         }
 
         public override string ToString()

@@ -12,9 +12,9 @@ namespace Interpreter.Core.Ast.Statements
 
         public DrawCircleNode(ExpressionNode expres1, ExpressionNode expres2, ExpressionNode expres3)
         {
-            ExpresDirX = expres1 ?? throw new ArgumentNullException(nameof(expres1));
-            ExpresDirY = expres2 ?? throw new ArgumentNullException(nameof(expres2));
-            Radius = expres3 ?? throw new ArgumentNullException(nameof(expres3));
+            ExpresDirX = expres1;
+            ExpresDirY = expres2 ;
+            Radius = expres3;
         }
 
         public override string ToString()

@@ -5,15 +5,15 @@ namespace Interpreter.Core.Ast.Expressions
 {
     public class NumberLiteralNode : ExpressionNode
     {
-        public Token NumberToken { get; } // The original NUMBER token from the lexer
-        public int Value { get; }         // The integer value of the number
+        public Token NumberToken { get; }
+        public int Value { get; }        
 
         public NumberLiteralNode(Token numberToken)
         {
             if (numberToken.Type != TokenType.Number || !(numberToken.Literal is int))
             {
-                // This is an internal consistency check. The parser should ensure this.
-                throw new ArgumentException("NumberLiteralNode requires a NUMBER token with an integer literal.", nameof(numberToken));
+               return;
+              //  throw new ArgumentException("NumberLiteralNode requires a NUMBER token with an integer literal.", nameof(numberToken));
             }
             NumberToken = numberToken;
             Value = (int)numberToken.Literal;

@@ -15,11 +15,11 @@ namespace Interpreter.Core.Ast.Statements
         {
             if (identifier.Type != TokenType.Identifier)
             {
-                // Internal consistency check: Parser should ensure this.
-                throw new ArgumentException("AssignmentNode requires an IDENTIFIER token for the variable name.", nameof(identifier));
+               return;
+               // throw new ArgumentException("AssignmentNode requires an IDENTIFIER token for the variable name.", nameof(identifier));
             }
             Identifier = identifier;
-            ValueExpression = valueExpression ?? throw new ArgumentNullException(nameof(valueExpression));
+            ValueExpression = valueExpression;
         }
 
         public override string ToString()

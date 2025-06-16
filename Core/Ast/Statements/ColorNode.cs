@@ -11,7 +11,7 @@ namespace Interpreter.Core.Ast.Statements
 
         public ColorNode(ExpressionNode colorExpression)
         {
-            ColorExpression = colorExpression ?? throw new ArgumentNullException(nameof(colorExpression));
+            ColorExpression = colorExpression;
         }
 
         public override string ToString()

@@ -97,7 +97,7 @@
                  <!-- Name the canvas so the ViewModel can get a reference -->
                   <controls:CanvasStateControl CanvasData="{Binding CanvasState}"
                                          AxisThickness="25" 
-                                         AxisBackground="LightSteelBlue" 
+                                         AxisBackground="#E3C4F5" 
                                          AxisForeground="Black"
                                          WallEX="{Binding WallEX}"
                                          WallEY="{Binding WallEY}" />
@@ -109,9 +109,9 @@
          <!-- Output Log -->
         <Grid
             Grid.Row="2"
-            Background="#F190EC"
+            Background="Black"
             RowDefinitions="30">
-             <TextBlock Text="{Binding OutputLog}" Foreground="DarkSlateGray" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/>
+             <TextBlock Text="{Binding OutputLog}" Foreground="Red" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/>
         </Grid>
     </Grid>
 

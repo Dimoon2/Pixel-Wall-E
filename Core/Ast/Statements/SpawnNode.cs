@@ -11,8 +11,8 @@ namespace Interpreter.Core.Ast.Statements
 
         public SpawnNode(ExpressionNode xCoordinate, ExpressionNode yCoordinate)
         {
-            XCoordinate = xCoordinate ?? throw new ArgumentNullException(nameof(xCoordinate));
-            YCoordinate = yCoordinate ?? throw new ArgumentNullException(nameof(yCoordinate));
+            XCoordinate = xCoordinate;
+            YCoordinate = yCoordinate;
         }
 
         public override string ToString()

@@ -14,9 +14,9 @@ namespace Interpreter.Core.Ast.Statements
 
         public DrawLineNode(ExpressionNode dirX, ExpressionNode dirY, ExpressionNode distance)
         {
-            ExpresDirX = dirX ?? throw new ArgumentNullException(nameof(dirX));
-            ExpresDirY = dirY ?? throw new ArgumentNullException(nameof(dirY));
-            ExpresDistance = distance ?? throw new ArgumentNullException(nameof(distance));
+            ExpresDirX = dirX ;
+            ExpresDirY = dirY ;
+            ExpresDistance = distance;
         }
 
         public override string ToString()

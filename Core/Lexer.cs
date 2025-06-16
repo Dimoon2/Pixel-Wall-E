@@ -93,7 +93,7 @@ namespace Interpreter.Core
                 }
 
                 // 2. Skip other whitespace (spaces, tabs)
-                if (CurrentChar == ' ' || CurrentChar == '\t')
+                if (CurrentChar == ' ' || CurrentChar == '\t' )
                 {
                     Advance();
                     continue;

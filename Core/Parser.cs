@@ -17,7 +17,7 @@ namespace Interpreter.Core
 
         public Parser(List<Token> token)
         {
-            tokens = token ?? throw new ArgumentNullException(nameof(tokens));
+            tokens = token;
             currentTokenIndex = 0;
             errors = new List<string>();
         }
@@ -25,12 +25,15 @@ namespace Interpreter.Core
         {
             get
             {
+                if (tokens is null)
+                {
+                    return null;
+                }
                 if (currentTokenIndex >= 0 && currentTokenIndex < tokens.Count)
                 {
                     return tokens[currentTokenIndex];
                 }
-                // This should ideally not be reached if EOF is always last token.
-                // But as a fallback, return a synthetic EOF if out of bounds.
+
                 return new Token(TokenType.EndOfFile, "\\0", "Synthetic EOF from CurrentToken OOB");
             }
         }
@@ -57,23 +60,9 @@ namespace Interpreter.Core
                 return token;
             }
             errors.Add($"Parser Error: Expected token {expectedType} but got {currentTokenType} ('{currentToken.Value}') at position {currentTokenIndex}.");
-            // Returning null means the calling parsing method needs to handle it.
-            return null!; // Or throw new ParserException(...);
+
+            return null!;
         }
-
-        // private Token Match(TokenType expectedType)
-        // {
-        //     if (currentTokenType == expectedType)
-        //     {
-        //         Token token = currentToken;
-        //         Advance();
-        //         return token;
-        //     }
-        //     // This would be an internal parser error or a place where an exception is better.
-
-        //     throw new InvalidOperationException($"Parser Internal Error: Tried to Match {expectedType} but found {currentTokenType}. This should have been checked before calling Match.");
-        // }
-
         public TokenType PeekType()
         {
             int PeekIndex = currentTokenIndex + 1;
@@ -129,21 +118,9 @@ namespace Interpreter.Core
                 }
                 else // ParseStatement returned null (error)
                 {
-                    // Error recovery: skip to next Newline or EOF
-                    // This loop runs if ParseStatement failed AND current token isn't already a sensible delimiter
                     if (currentTokenType != TokenType.Newline && currentTokenType != TokenType.EndOfFile)
                     {
-                        // int recoveryLoopSafety = 0;
-                        // while (currentTokenType != TokenType.Newline && currentTokenType != TokenType.EndOfFile)
-                        // {
-                        //     recoveryLoopSafety++;
-                        //     if (recoveryLoopSafety > tokens.Count + 5)
-                        //     { // Safety for recovery loop
-                        //         break;
-                        //     }
                         Advance();
-                        
-                        //}
                     }
                 }
 
@@ -164,9 +141,6 @@ namespace Interpreter.Core
                     }
                 }
             }
-
-            // Add collected errors to the main errors list if they were logged to Console.Error directly for some reason
-            // (Though they should be added to errors by the methods)
             return new ProgramNode(statements);
         }
 
@@ -226,29 +200,33 @@ namespace Interpreter.Core
 
             if (Match(TokenType.LParen) == null)
             {
+                errors.Add("Null argument");
                 return null!;
             }
 
             ExpressionNode xCoord = ParseExpression();
             if (xCoord == null)
             {
+                errors.Add("Null argument");
                 return null!;
             }
 
             if (Match(TokenType.Comma) == null)
             {
+                errors.Add("Null argument");
                 return null!;
             }
 
             ExpressionNode yCoord = ParseExpression();
             if (yCoord == null)
             {
-                // Console.Error.WriteLine($"!!!! DEBUG: ParseSpawnStatement: yCoord parsing failed. Token: {currentToken}");
+                errors.Add("Null argument");
                 return null!;
             }
 
             if (Match(TokenType.RParen) == null)
             {
+                errors.Add("Null argument");
                 return null!;
             }
 
@@ -258,9 +236,19 @@ namespace Interpreter.Core
         private ColorNode ParseColorStatement()
         {
             Match(TokenType.KeywordColor);
-            Match(TokenType.LParen);
+            if (Match(TokenType.LParen) == null)
+            {
+                errors.Add("Null argument");
+                return null!;
+            }
             ExpressionNode color = ParseExpression();
             Match(TokenType.RParen);
+
+            if (color is null)
+            {
+                errors.Add("Null argument");
+                return null!;
+            }
             return new ColorNode(color);
         }
 
@@ -270,6 +258,11 @@ namespace Interpreter.Core
             Match(TokenType.LParen);
             ExpressionNode size = ParseExpression();
             Match(TokenType.RParen);
+            if (size is null)
+            {
+                errors.Add("Null argument");
+                return null!;
+            }
             return new SizeNode(size);
         }
 
@@ -346,7 +339,7 @@ namespace Interpreter.Core
         private AssignmentNode ParseAssignmentStatement()
         {
             Token identifier = Match(TokenType.Identifier);
-            if (identifier == null) return null!; //should not happend
+            if (identifier == null) return null!;
             if (Match(TokenType.Arrow) == null) return null!;
 
             ExpressionNode value = ParseExpression();
@@ -375,12 +368,25 @@ namespace Interpreter.Core
                 return null!;
             }
 
-            Match(TokenType.RBracket);
-            Match(TokenType.LParen);
+            if (Match(TokenType.RBracket) is null)
+            {
+                errors.Add("Null argument");
+                return null!;
+            }
+            if (Match(TokenType.LParen) is null)
+            {
+                errors.Add("Null argument");
+                return null!;
+            }
             ExpressionNode condition = ParseExpression();
-            Match(TokenType.RParen);
+            if (Match(TokenType.RParen) is null)
+            {
+                errors.Add("Null argument");
+                return null!;
+            }
             return new GoToNode(labelIdentifier, condition);
         }
+        
         // --- Expression Parsers ---
         private ExpressionNode ParseExpression()
         {

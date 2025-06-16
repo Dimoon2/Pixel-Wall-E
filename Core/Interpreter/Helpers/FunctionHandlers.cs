@@ -147,7 +147,7 @@ namespace Interpreter.Core.Interpreter.Helpers
                         if (canvas.GetPixel(i, j) == convertedColor)
                         {
                             counter++;
-
+                            Debug.WriteLine($"entr'e a for 1, count {counter}");
                         }
                     }
                 }
@@ -162,6 +162,7 @@ namespace Interpreter.Core.Interpreter.Helpers
                         if (canvas.GetPixel(i, j) == convertedColor)
                         {
                             counter++;
+                            Debug.WriteLine($"entr'e a for 2, count {counter}");
                         }
                     }
                 }
@@ -176,6 +177,7 @@ namespace Interpreter.Core.Interpreter.Helpers
                         if (canvas.GetPixel(i, j) == convertedColor)
                         {
                             counter++;
+                            Debug.WriteLine($"entr'e a for 3, count {counter}");
 
                         }
                     }
@@ -191,6 +193,7 @@ namespace Interpreter.Core.Interpreter.Helpers
                         if (canvas.GetPixel(i, j) == convertedColor)
                         {
                             counter++;
+                            Debug.WriteLine($"entr'e a for 1, count {counter}");
 
                         }
                     }

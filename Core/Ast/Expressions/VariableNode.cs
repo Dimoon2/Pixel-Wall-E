@@ -12,7 +12,8 @@ namespace Interpreter.Core.Ast.Expressions
 
             if (identifierToken == null)
             {
-                throw new ArgumentNullException(nameof(identifierToken), "CRITICAL: identifierToken parameter was null in VariableNode constructor.");
+              //  throw new ArgumentNullException(nameof(identifierToken), "CRITICAL: identifierToken parameter was null in VariableNode constructor.");
+              return;
             }
             IdentifierToken = identifierToken;
         }
