@@ -19,6 +19,7 @@ using System.IO; // Para leer y escribir archivos
 using Avalonia.Controls; // Para poder recibir el 'Window' como parámetro
 using Avalonia.Platform.Storage;
 
+
 namespace PixelWallEApp.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
