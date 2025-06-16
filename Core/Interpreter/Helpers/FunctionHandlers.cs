@@ -126,80 +126,36 @@ namespace Interpreter.Core.Interpreter.Helpers
                            !(evaluatedArgs[1] is int x1) ||
                            !(evaluatedArgs[2] is int y1) ||
                            !(evaluatedArgs[3] is int x2) ||
-                           !(evaluatedArgs[2] is int y2))
+                           !(evaluatedArgs[4] is int y2))
             {
                 throw new RuntimeException("GetColorCount() requires five arguments (string color, numeric x1, numeric y1, numeric x2 and numeric y2).");
             }
 
             if (!canvas.IsValidPosition(x1) || !canvas.IsValidPosition(x2) || !canvas.IsValidPosition(y1) || !canvas.IsValidPosition(y2))
             {
-                throw new RuntimeException("Not valid coordinates in GetColorCount arguments.");
+                return 0;
             }
 
             int counter = 0;
             Color convertedColor = GetColor(color);
-            if (x1 <= x2 && y1 <= y2)
-            {
-                for (int i = x1; i <= x2; i++)
-                {
-                    for (int j = y1; j <= y2; j++)
-                    {
-                        if (canvas.GetPixel(i, j) == convertedColor)
-                        {
-                            counter++;
-                            Debug.WriteLine($"entr'e a for 1, count {counter}");
-                        }
-                    }
-                }
-                return counter;
-            }
-            if (x1 >= x2 && y1 >= y2)
-            {
-                for (int i = x2; i <= x1; i++)
-                {
-                    for (int j = y2; j <= y1; j++)
-                    {
-                        if (canvas.GetPixel(i, j) == convertedColor)
-                        {
-                            counter++;
-                            Debug.WriteLine($"entr'e a for 2, count {counter}");
-                        }
-                    }
-                }
-                return counter;
-            }
-            if (x1 >= x2 && y1 <= y2)
-            {
-                for (int i = y1; i <= y2; i++)
-                {
-                    for (int j = x2; j <= x1; j++)
-                    {
-                        if (canvas.GetPixel(i, j) == convertedColor)
-                        {
-                            counter++;
-                            Debug.WriteLine($"entr'e a for 3, count {counter}");
+            int minX = Math.Min(x1, x2);
+            int maxX = Math.Max(x1, x2);
+            int minY = Math.Min(y1, y2);
+            int maxY = Math.Max(y1, y2);
 
-                        }
-                    }
-                }
-                return counter;
-            }
-            else
+            // Un único bucle que recorre el rectángulo delimitado.
+            for (int x = minX; x <= maxX; x++)
             {
-                for (int i = y2; i <= y1; i++)
+                for (int y = minY; y <= maxY; y++)
                 {
-                    for (int j = x1; j <= x2; j++)
+                    if (canvas.GetPixel(x, y) == convertedColor)
                     {
-                        if (canvas.GetPixel(i, j) == convertedColor)
-                        {
-                            counter++;
-                            Debug.WriteLine($"entr'e a for 1, count {counter}");
-
-                        }
+                        counter++;
                     }
                 }
-                return counter;
             }
+
+            return counter;
         }
     }
 }

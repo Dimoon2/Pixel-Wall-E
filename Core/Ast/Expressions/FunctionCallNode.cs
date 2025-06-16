@@ -37,7 +37,6 @@ namespace Interpreter.Core.Ast.Expressions
             {
                 try
                 {
-                    // Pass the necessary context to the handler
                     return handler(evaluatedArgs, interpreter.wallEContext, interpreter.canvas, interpreter.symbolTable);
                 }
                 catch (RuntimeException) { throw; } // Re-throw our specific exceptions

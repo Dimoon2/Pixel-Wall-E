@@ -27,7 +27,7 @@ namespace Interpreter.Core
             {
                 if (tokens is null)
                 {
-                    return null;
+                    return null!;
                 }
                 if (currentTokenIndex >= 0 && currentTokenIndex < tokens.Count)
                 {
@@ -386,7 +386,7 @@ namespace Interpreter.Core
             }
             return new GoToNode(labelIdentifier, condition);
         }
-        
+
         // --- Expression Parsers ---
         private ExpressionNode ParseExpression()
         {

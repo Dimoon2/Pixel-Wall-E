@@ -66,13 +66,13 @@ namespace Interpreter.Core
 
         private bool IsIdentifierStart(char c)
         {
-            return char.IsLetter(c);
+            return char.IsLetter(c) || c=='Ñ' || c == 'ñ';
             // return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == 'ñ' || c == 'Ñ' ... etc.;
         }
 
         private bool IsIdentifierPart(char c)
         {
-            return char.IsLetterOrDigit(c) || c == '_' && c!= '-';
+            return char.IsLetterOrDigit(c) || c == '_' && c!= '-' || c=='Ñ' || c == 'ñ';
         }
 
         public Token GetNextToken()
