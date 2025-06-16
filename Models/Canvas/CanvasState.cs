@@ -1,5 +1,6 @@
 // Models/PixelCanvas.cs
 using Avalonia.Media;
+using Interpreter.Core.Interpreter;
 using System;
 using System.Diagnostics.CodeAnalysis; // Needed for MemberNotNull attribute
 
@@ -14,7 +15,7 @@ public class CanvasState
     public event EventHandler? CanvasInvalidated; 
 
     
-    public CanvasState(int size)
+    public CanvasState(int size, WallEState wallE)
     {
         if (size <= 0)
         {
@@ -24,10 +25,10 @@ public class CanvasState
         Size = size;
         _pixels = new Color[Size, Size];
 
-        Clear(Colors.White);
+        Clear(Colors.White, wallE);
     }
 
-    public void Resize(int newSize)
+    public void Resize(int newSize,WallEState wallE)
     {
         if (newSize <= 0)
         {
@@ -38,11 +39,11 @@ public class CanvasState
         {
             Size = newSize;
             _pixels = new Color[newSize, newSize]; // Reallocate
-            Clear(Colors.White); // Clear the new array
+            Clear(Colors.White, wallE); // Clear the new array
         }
     }
 
-    public void Clear(Color color)
+    public void Clear(Color color, WallEState wallE)
     {
         for (int y = 0; y < Size; y++)
         {
@@ -51,6 +52,7 @@ public class CanvasState
                 _pixels[x, y] = color;
             }
         }
+        wallE.IsSpawned = false;
         NotifyChanged(); // Notify after clearing
     }
 

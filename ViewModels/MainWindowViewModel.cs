@@ -161,7 +161,7 @@ DrawLine(0,0,0)";
         {
             _wallEState = new WallEState();
             // Initialize CanvasState with the default input size
-            _canvasState = new CanvasState(_canvasSizeInput);
+            _canvasState = new CanvasState(_canvasSizeInput, WallE);
             // Set the static reference in App for the canvas rendering
             _theDocument = new TextDocument(_initialCodeText); // <--- CAMBIO: Inicializa el documento
             WallELocation();
@@ -177,7 +177,7 @@ DrawLine(0,0,0)";
         private void ResizeCanvas()
         {
             LogOutput($"Resizing canvas to {CanvasSizeInput}x{CanvasSizeInput}...");
-            CanvasState.Resize(CanvasSizeInput);
+            CanvasState.Resize(CanvasSizeInput, WallE);
             LogOutput($"Canvas resized. Cleared to white.");
         }
 
@@ -185,7 +185,7 @@ DrawLine(0,0,0)";
         private void Clear()
         {
             LogOutput($"Clearing canvas...");
-            CanvasState.Clear(FunctionHandlers.GetColor("white"));
+            CanvasState.Clear(FunctionHandlers.GetColor("white"), WallE);
             LogOutput($"Canvas cleared, everything up to default");
         }
 
