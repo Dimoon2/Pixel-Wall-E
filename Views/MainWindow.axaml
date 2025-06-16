@@ -111,7 +111,7 @@
             Grid.Row="2"
             Background="Black"
             RowDefinitions="30">
-             <TextBlock Text="{Binding OutputLog}" Foreground="Red" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/>
+             <TextBlock Text="{Binding OutputLog}" Foreground="#8ECEFF" Height="30" Margin="0,5,0,0" TextWrapping="Wrap"/>
         </Grid>
     </Grid>
 

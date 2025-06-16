@@ -122,7 +122,7 @@ namespace Interpreter.Core.Interpreter.Helpers
         public static object HandleGetColorCount(List<object> evaluatedArgs, WallEState wallE, CanvasState canvas, SymbolTable symbolTable)
         {
             if (evaluatedArgs.Count != 5 ||
-                           !(evaluatedArgs[0] is string color) ||
+                           !(evaluatedArgs[0] is string colorName) ||
                            !(evaluatedArgs[1] is int x1) ||
                            !(evaluatedArgs[2] is int y1) ||
                            !(evaluatedArgs[3] is int x2) ||
@@ -137,7 +137,7 @@ namespace Interpreter.Core.Interpreter.Helpers
             }
 
             int counter = 0;
-            Color convertedColor = GetColor(color);
+            Color convertedColor = GetColor(colorName);
             int minX = Math.Min(x1, x2);
             int maxX = Math.Max(x1, x2);
             int minY = Math.Min(y1, y2);
