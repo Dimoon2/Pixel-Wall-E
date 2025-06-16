@@ -24,7 +24,8 @@ namespace Interpreter.Core.Interpreter.Helpers
          {"purple",Colors.Purple},
          {"black",Colors.Black},
          {"white",Colors.White},
-         {"transparent",Colors.Transparent},
+         {"transparent",Colors.Transparent}, 
+         {"pink",Colors.Pink},
         };
         public static Color GetColor(string s)
         {

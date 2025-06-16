@@ -96,7 +96,7 @@
                </Border>
            </Grid>
            <!-- Column 1  CANVASSSSSSS-->
-            <Grid Grid.Column="1" Background="#491546" >
+            <Grid Grid.Column="1" Background="White" >
                  <!-- Canvas Area -->
                <Border  BorderBrush="Gray" BorderThickness="1" Margin="10">
                  <!-- Name the canvas so the ViewModel can get a reference -->

@@ -26,29 +26,15 @@ namespace PixelWallEApp.ViewModels
     {
         [ObservableProperty]
         private string _initialCodeText = @"
-Spawn(10, 10)
-Color(""Blue"")
-Size(3)
-
-side <- 0
-length <- 10
-
-loop_start
-    DrawLine(1, 0, length) 
-    DrawLine(0, 1, length) 
-    DrawLine(-1, 0, length) 
-    DrawLine(0, -1, length) 
-
-    Color(""Transparent"")
-    DrawLine(1, 0, 1)
-    Color(""Blue"")
-
-    side <- side + 1
-GoTo [loop_start] (side < 4)
-
-Color(""Purple"")
-Size(5)
-DrawLine(0,0,0)";
+Spawn(25, 25)
+Color(""Black"")
+Drawcircle(0,0,10)
+Drawline(1,0,10)
+Drawline(-1,0,21)
+color(""transparent"")
+drawline(1,-1,2)
+color(""red"")
+fill()";
 
         [ObservableProperty]
         private TextDocument _theDocument;
@@ -253,9 +239,9 @@ DrawLine(0,0,0)";
 
                 LogOutput($"Execution finished (or attempted), Walle current position:({_wallEState.X} , {_wallEState.Y})");
             }
-             catch (System.Exception)
+            catch (System.Exception)
             {
-                
+
                 throw;
             }
         }

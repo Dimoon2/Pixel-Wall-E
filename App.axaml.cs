@@ -2,8 +2,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using PixelWallEApp.ViewModels; // Your namespaces
+using PixelWallEApp.ViewModels; 
 using PixelWallEApp.Views;
+using AvaloniaEdit.TextMate; 
+using TextMateSharp.Grammars; 
 
 namespace PixelWallEApp;
 
@@ -31,7 +33,7 @@ public partial class App : Application
         //        DataContext = new MainViewModel(),
         //    };
         // }
-
         base.OnFrameworkInitializationCompleted();
     }
+    
 }
