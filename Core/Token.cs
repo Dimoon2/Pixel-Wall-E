@@ -16,23 +16,17 @@ namespace Interpreter.Core
         KeywordDrawRectangle,
         KeywordFill,
         KeywordGoTo,
-        // Keywords for potential future LOAD/SAVE/EVAL if handled by the language itself
-        // KeywordLoad,
-        // KeywordSave,
-        // KeywordEval,
 
         // Keywords - Built-in Functions 
         KeywordGetActualX,
         KeywordGetActualY,
-        KeywordGetCanvasSize, // Assuming a corresponding height function, or GetCanvasSize returns a pair/object
+        KeywordGetCanvasSize, 
         KeywordGetColorCount,
         KeywordIsBrushColor,
         KeywordIsBrushSize,
         KeywordIsCanvasColor,
-        KeywordTrue, // For boolean literals 'true'
-        KeywordFalse, // For boolean literals 'false'
-                      // The spec for GoTo (condition) implies expressions evaluate to numbers (0 for false, non-0 for true)
-                      // So, explicit true/false keywords might not be strictly needed yet if we follow that.
+        KeywordTrue, 
+        KeywordFalse, 
 
         //Operators
         Plus, //+
@@ -67,14 +61,14 @@ namespace Interpreter.Core
         EndOfFile,      // EOF
 
         // For errors or unrecognized tokens
-        Illegal         // Optional: for tokens that are not valid
+        Illegal         //for tokens that are not valid
     }
 
     public class Token
     {
         public TokenType Type { get; }
-        public string Value { get; }    // The raw lexeme, e.g., "Spawn", "<-", "\"Red\""
-        public object Literal { get; }  // The actual value, e.g., int 5, string "Red" (no quotes)
+        public string Value { get; }    // The raw lexeme
+        public object Literal { get; }  // The actual value
 
         public Token(TokenType type, string value, object literal = null!)
         {

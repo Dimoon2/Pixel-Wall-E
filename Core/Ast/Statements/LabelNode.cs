@@ -25,7 +25,6 @@ namespace Interpreter.Core.Ast.Statements
 
         public override void Execute(Interprete interpreter)
         {
-             // Labels are processed during the ScanForLabels phase.
             interpreter.OutputLog.Add($"Encountered Label: {IdentifierToken.Value}");
         }
     }

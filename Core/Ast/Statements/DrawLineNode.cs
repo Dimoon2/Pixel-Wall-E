@@ -61,18 +61,18 @@ namespace Interpreter.Core.Ast.Statements
                 int lastDrawnX = currentX;
                 int lastDrawnY = currentY;
 
-                // Brush size handling (must be odd)
+                
                 int brushSize = interpreter.wallEContext.BrushSize;
                 if (brushSize % 2 == 0)
                 {
-                    brushSize -= 1; // Use odd size immediately smaller
+                    brushSize -= 1; 
                 }
-                int brushOffset = brushSize / 2; // Integer division gives offset from center
+                int brushOffset = brushSize / 2; 
 
-                // Draw points along the line
+                
                 for (int i = 0; i <= Distance; i++)
                 {
-                    // Apply brush centered at (currentX, currentY)
+                   
                     for (int brushY = -brushOffset; brushY <= brushOffset; brushY++)
                     {
                         for (int brushX = -brushOffset; brushX <= brushOffset; brushX++)
@@ -88,8 +88,7 @@ namespace Interpreter.Core.Ast.Statements
                         }
                     }
 
-                    // Update position for the *next* point (or final position)
-                    lastDrawnX = currentX; // Remember the center of the last drawn brush square
+                    lastDrawnX = currentX; 
                     lastDrawnY = currentY;
                     currentX += DirX;
                     currentY += DirY;

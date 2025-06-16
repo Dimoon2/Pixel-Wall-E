@@ -27,7 +27,7 @@ namespace Interpreter.Core.Ast.Statements
                 {
                     throw new RuntimeException($"Size command expects a numeric argument. Got {sizeValue?.GetType().Name}.");
                 }
-                // Add validation for brush size as per spec (e.g., must be positive)
+                
                 if (size < 1)
                 {
                     throw new RuntimeException($"Brush size must be a positive integer. Got {size}.");

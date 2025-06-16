@@ -9,7 +9,7 @@ namespace Interpreter.Core
         private readonly string text;
         private int position;
 
-        // The Keyword Map
+        //Keyword Map
         private static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
         {
             // Commands
@@ -30,9 +30,6 @@ namespace Interpreter.Core
             {"IsBrushColor", TokenType.KeywordIsBrushColor},
             {"IsBrushSize", TokenType.KeywordIsBrushSize},
             {"IsCanvasColor", TokenType.KeywordIsCanvasColor},
-            // Add "true" and "false" here if we decide to support them as keywords
-            {"true", TokenType.KeywordTrue},
-            {"false", TokenType.KeywordFalse}
         };
         public Lexer(string Text)
         {
@@ -134,10 +131,10 @@ namespace Interpreter.Core
                     // Check if it's a keyword
                     if (Keywords.TryGetValue(identifierStr, out TokenType keywordType))
                     {
-                        return new Token(keywordType, lexeme); // Keywords don't have a separate 'literal' different from their text
+                        return new Token(keywordType, lexeme); 
                     }
-                    // If not a keyword, it's a user-defined identifier
-                    return new Token(TokenType.Identifier, lexeme, identifierStr); // Literal is the identifier name
+                    // If not a keyword is an identifier
+                    return new Token(TokenType.Identifier, lexeme, identifierStr);
                 }
 
                 // 5. Handle String Literals
@@ -222,9 +219,7 @@ namespace Interpreter.Core
                 tokens.Add(token);
                 if (token.Type == TokenType.Illegal)
                 {
-                    // Optional: Stop tokenizing on first error or collect all errors
                     Console.WriteLine($"Lexer Error: {token.Literal} (Value: '{token.Value}')");
-                    // For now, let's stop if we want to be strict. Or just add and let parser deal.
                 }
             } while (token.Type != TokenType.EndOfFile);
             return tokens;

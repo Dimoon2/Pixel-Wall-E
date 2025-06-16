@@ -13,7 +13,6 @@ namespace Interpreter.Core.Ast.Statements
         public ExpressionNode Width { get; }
         public ExpressionNode Height { get; }
 
-        //(int dirX, int dirY, int distance, int width, int height
         public DrawRectangleNode(ExpressionNode expres1, ExpressionNode expres2, ExpressionNode expres3, ExpressionNode width, ExpressionNode height)
         {
             ExpresDirX = expres1;

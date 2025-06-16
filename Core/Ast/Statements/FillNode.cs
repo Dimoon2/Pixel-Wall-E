@@ -35,7 +35,6 @@ namespace Interpreter.Core.Ast.Statements
 
             FloodFillRecursive(startX, startY, interpreter, targetColor, fillColor);
 
-            // --- 5. Notificar a la UI al final ---
             interpreter.canvas.NotifyChanged();
             interpreter.OutputLog.Add($"Fill command executed, starting from ({startX}, {startY}).");
         }

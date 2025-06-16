@@ -41,7 +41,7 @@ namespace Interpreter.Core.Ast.Expressions
                 return BinaryOperations.ConvertToBooleanStatic(rightValueOr);
             }
 
-            // For other operators, evaluate right operand and use the handler
+            
             object rightValue = Right.Evaluate(interpreter);
 
             if (BinaryOperations.TryGetHandler(Operator.Type, out BinaryOperationHandler handler))

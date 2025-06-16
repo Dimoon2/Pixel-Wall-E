@@ -1,5 +1,5 @@
-using System.Collections.Generic; // For List
-using System.Linq; // For Linq operations in ToString
+using System.Collections.Generic; 
+using System.Linq; 
 using Interpreter.Core;
 using System;
 using Interpreter.Core.Interpreter;

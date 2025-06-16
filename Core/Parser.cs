@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Interpreter.Core.Ast; // For AstNode
-using Interpreter.Core.Ast.Statements; // For ProgramNode, StatementNode, SpawnNode
+using Interpreter.Core.Ast; 
+using Interpreter.Core.Ast.Statements; 
 using Interpreter.Core.Ast.Expressions;
 using System.Linq.Expressions;
 using System.Linq;
-using System.Diagnostics; // For ExpressionNode, NumberLiteralNode
+using System.Diagnostics; 
 
 namespace Interpreter.Core
 {
@@ -41,7 +41,7 @@ namespace Interpreter.Core
 
         private void Advance()
         {
-            if (currentTokenIndex < tokens.Count - 1) // Only advance if not already at the last token
+            if (currentTokenIndex < tokens.Count - 1) 
             {
                 currentTokenIndex++;
             }
@@ -70,16 +70,16 @@ namespace Interpreter.Core
             return tokens[PeekIndex].Type;
         }
 
-        // Public method to get any parsing errors collected
+        // method to get any parsing errors collected
         public IReadOnlyList<string> Errors => errors;
 
 
         //PARSE PROGRAM
         public ProgramNode ParseProgram()
         {
-            if (tokens == null || tokens.Count == 0 || tokens.Last().Type != TokenType.EndOfFile) // Ensure EOF is last if not empty
+            if (tokens == null || tokens.Count == 0 || tokens.Last().Type != TokenType.EndOfFile) 
             {
-                // if (tokens == null) tokens = new List<Token>(); // Prevent null
+                
                 if (tokens!.Count == 0 || tokens.Last().Type != TokenType.EndOfFile)
                 {
                     tokens.Add(new Token(TokenType.EndOfFile, "\\0", "Forced EOF"));
@@ -97,8 +97,8 @@ namespace Interpreter.Core
                 while (currentTokenType == TokenType.Newline)
                 {
                     Advance();
-                    // Safety for skipping newlines if Advance gets stuck (unlikely but for paranoia)
-                    if (currentTokenType == TokenType.Newline)// && loopSafetyCounter % 10 == 0 && loopSafetyCounter > tokens.Count)
+                    
+                    if (currentTokenType == TokenType.Newline)
                     {
                         // Console.Error.WriteLine($"!!!! DEBUG: Potentially stuck skipping Newlines. Token: {currentToken}");
                     }
@@ -110,13 +110,13 @@ namespace Interpreter.Core
                 }
 
                 // 3. Parse a statement
-                StatementNode statement = ParseStatement(); // ParseStatement now advances on its own default error
+                StatementNode statement = ParseStatement(); 
 
                 if (statement != null)
                 {
                     statements.Add(statement);
                 }
-                else // ParseStatement returned null (error)
+                else
                 {
                     if (currentTokenType != TokenType.Newline && currentTokenType != TokenType.EndOfFile)
                     {
@@ -127,16 +127,14 @@ namespace Interpreter.Core
                 // 4. After a statement or error recovery, expect a Newline or EndOfFile.
                 if (currentTokenType == TokenType.Newline)
                 {
-                    Advance(); // Match the (single) newline
+                    Advance(); 
                 }
                 else if (currentTokenType != TokenType.EndOfFile)
                 {
-                    // This means a statement was parsed (or error occurred) and it wasn't followed by a newline or EOF.
-                    // Example: Spawn(0,0) Spawn(1,1) <- no newline
-                    if (statement != null) // Only if the statement itself was considered "parsed"
+                    if (statement != null) 
                     {
                         errors.Add($"Parser Error: Expected Newline or EndOfFile after statement, but got {currentTokenType} ('{currentToken.Value}').");
-                        // To prevent potential loop if this non-newline/EOF token isn't handled by next iteration's ParseStatement
+                     
                         Advance();
                     }
                 }
@@ -189,14 +187,14 @@ namespace Interpreter.Core
                 // ... other cases ...
                 default:
                     errors.Add($"Parser Error: Unexpected token {currentTokenType} ('{currentToken.Value}') at start of a statement. Skipping this token.");
-                    Advance(); // Match the problematic token //not in new prom
+                    Advance(); // Match the problematic token 
                     return null!; // Error
             }
         }
-        // --- Specific Statement Parsers ---
+        // --- Statement Parsers ---
         private SpawnNode ParseSpawnStatement()
         {
-            Match(TokenType.KeywordSpawn); // Match 'Spawn'
+            Match(TokenType.KeywordSpawn); 
 
             if (Match(TokenType.LParen) == null)
             {
@@ -575,7 +573,6 @@ namespace Interpreter.Core
                 return null!;
             }
 
-            // Expect and Match RParen (since these are no-argument functions)
             if (Match(TokenType.RParen) == null)
             {
                 // Error: Expected ')' to close function call
